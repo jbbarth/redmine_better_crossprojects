@@ -72,12 +72,8 @@
 <% end %>
 <%= call_hook(:view_issues_index_bottom, { :issues => @issues, :project => @project, :query => @query }) %>
 
-<% if @project -%>
-  <% content_for :sidebar do %>
-    <%= render :partial => 'issues/sidebar' %>
-  <% end %>
-<% else -%>
-  <%= render 'common/cross_sidebar' %>
+<% content_for :sidebar do %>
+  <%= render (@project ? 'issues/sidebar' : 'common/cross_sidebar') %>
 <% end -%>
 
 <% content_for :header_tags do %>

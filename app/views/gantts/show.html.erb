@@ -237,12 +237,8 @@ if Date.today >= @gantt.date_from and Date.today <= @gantt.date_to %>
 <% end %>
 <% end # query.valid? %>
 
-<% if @project -%>
-  <% content_for :sidebar do %>
-    <%= render :partial => 'issues/sidebar' %>
-  <% end %>
-<% else -%>
-  <%= render 'common/cross_sidebar' %>
+<% content_for :sidebar do %>
+  <%= render (@project ? 'issues/sidebar' : 'common/cross_sidebar') %>
 <% end -%>
 
 <% html_title(l(:label_gantt)) -%>

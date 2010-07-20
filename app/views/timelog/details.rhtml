@@ -34,4 +34,8 @@ already in the URI %>
     <%= auto_discovery_link_tag(:atom, {:issue_id => @issue, :format => 'atom', :key => User.current.rss_key}, :title => l(:label_spent_time)) %>
 <% end %>
 
-<%= render 'common/cross_sidebar' if @project.nil? && @issue.nil? %>
+<% if @project.nil? && @issue.nil? -%>
+<% content_for :sidebar do -%>
+  <%= render 'common/cross_sidebar' %>
+<% end -%>
+<% end -%>

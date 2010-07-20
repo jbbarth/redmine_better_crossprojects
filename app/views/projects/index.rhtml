@@ -20,6 +20,7 @@
 	<%= f.link_to 'Atom', :url => {:key => User.current.rss_key} %>
 <% end %>
 
+<% content_for :sidebar do -%>
+  <%= render 'common/cross_sidebar' %>
+<% end -%>
 <% html_title(l(:label_project_plural)) -%>
-
-<%= render 'common/cross_sidebar' %>
