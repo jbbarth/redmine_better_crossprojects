@@ -7,7 +7,10 @@
   <h3><%=l(:label_issue_plural)%></h3>
   <%= link_to(l(:label_issue_view_all), {:controller => 'issues'}) if User.current.allowed_to?(:view_issues, nil, :global => true) %><br />
 
+  <% if User.current.allowed_to?(:view_time_entries, nil, :global => true) \
+    && EnabledModule.first(:conditions => {:name => "time_tracking"}) %>
   <h3><%=l(:label_time_entry_plural)%></h3>
-  <%= link_to(l(:label_overall_spent_time), {:controller => 'time_entries'}) if User.current.allowed_to?(:view_time_entries, nil, :global => true) %><br />
+  <%= link_to(l(:label_overall_spent_time), {:controller => 'time_entries'}) %><br />
+  <% end %>
 
 <% end -%>
