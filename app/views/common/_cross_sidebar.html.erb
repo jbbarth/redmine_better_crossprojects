@@ -1,6 +1,5 @@
 <h3><%=l(:label_project_plural) %></h3>
 <%= link_to(l(:label_project_all), {:controller => 'projects'}) if User.current.allowed_to?(:view_issues, nil, :global => true) %><br />
-<%= link_to l(:label_overall_activity), {:controller => 'projects', :action => 'activity'} %><br />
 <%= call_hook(:view_cross_sidebar_projects_bottom) %>
 
 <h3><%=l(:label_issue_plural)%></h3>
@@ -26,3 +25,7 @@
 <%= link_to(l(:label_overall_spent_time), {:controller => 'time_entries'}) %><br />
 <% end %>
 <%= call_hook(:view_cross_sidebar_time_entries_bottom) %>
+
+<h3><%=l(:label_activity) %></h3>
+<%= link_to l(:label_overall_activity), {:controller => 'projects', :action => 'activity'} %><br />
+<%= call_hook(:view_cross_sidebar_activity_bottom) %>

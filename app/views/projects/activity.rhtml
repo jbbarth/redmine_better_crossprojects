@@ -42,9 +42,12 @@
 <% end %>
 
 <% content_for :sidebar do %>
-<%= render 'common/cross_sidebar' if @project.nil? %>
 <% form_tag({}, :method => :get) do %>
-<h3><%= l(:label_activity) %></h3>
+<% if @project -%>
+  <h3><%= l(:label_activity) %></h3>
+<% else -%>
+  <%= render 'common/cross_sidebar' if @project.nil? %>
+<% end -%>
 <p><% @activity.event_types.each do |t| %>
 <%= check_box_tag "show_#{t}", 1, @activity.scope.include?(t) %>
 <%= link_to(l("label_#{t.singularize}_plural"), {"show_#{t}" => 1, :user_id => params[:user_id]})%>
