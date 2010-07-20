@@ -1,0 +1,13 @@
+<% content_for :sidebar do -%>
+  
+  <h3><%=l(:label_project_plural) %></h3>
+  <%= link_to(l(:label_project_all), {:controller => 'projects'}) if User.current.allowed_to?(:view_issues, nil, :global => true) %><br />
+  <%= link_to l(:label_overall_activity), {:controller => 'projects', :action => 'activity'} %><br />
+
+  <h3><%=l(:label_issue_plural)%></h3>
+  <%= link_to(l(:label_issue_view_all), {:controller => 'issues'}) if User.current.allowed_to?(:view_issues, nil, :global => true) %><br />
+
+  <h3><%=l(:label_time_entry_plural)%></h3>
+  <%= link_to(l(:label_overall_spent_time), {:controller => 'time_entries'}) if User.current.allowed_to?(:view_time_entries, nil, :global => true) %><br />
+
+<% end -%>
