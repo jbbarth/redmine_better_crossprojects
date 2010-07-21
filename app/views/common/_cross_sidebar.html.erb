@@ -1,29 +1,31 @@
 <h3><%=l(:label_project_plural) %></h3>
-<%= link_to(l(:label_project_all), {:controller => 'projects'}) if User.current.allowed_to?(:view_issues, nil, :global => true) %><br />
+<%= link_to(l(:label_project_all), {:controller => 'projects'}) %><br />
 <%= call_hook(:view_cross_sidebar_projects_bottom) %>
 
 <h3><%=l(:label_issue_plural)%></h3>
-<%= link_to(l(:label_issue_view_all), {:controller => 'issues', :set_filter => 1}) if User.current.allowed_to?(:view_issues, nil, :global => true) %><br />
+<% if User.current.allowed_to?(:view_issues, nil, :global => true) -%>
+  <%= link_to(l(:label_issue_view_all), {:controller => 'issues', :set_filter => 1}) %><br />
+<% end -%>
 <% if User.current.allowed_to?(:view_calendar, nil, :global => true) %>
   <%= link_to(l(:label_calendar), :controller => 'issues', :action => 'calendar') %><br />
-<% end %>
+<% end -%>
 <% if User.current.allowed_to?(:view_gantt, nil, :global => true) %>
   <%= link_to(l(:label_gantt), :controller => 'gantts', :action => 'show') %><br />
-<% end %>
+<% end -%>
 <%= call_hook(:view_cross_sidebar_issues_bottom) %>
 
 <% unless sidebar_queries.empty? -%>
-<h3><%= l(:label_query_plural) %></h3>
-<% sidebar_queries.each do |query| -%>
-<%= link_to(h(query.name), :controller => 'issues', :action => 'index', :project_id => @project, :query_id => query) %><br />
-<% end -%>
+  <h3><%= l(:label_query_plural) %></h3>
+  <% sidebar_queries.each do |query| -%>
+    <%= link_to(h(query.name), :controller => 'issues', :action => 'index', :query_id => query) %><br />
+  <% end -%>
 <% end -%>
 
 <% if User.current.allowed_to?(:view_time_entries, nil, :global => true) \
   && EnabledModule.first(:conditions => {:name => "time_tracking"}) %>
 <h3><%=l(:label_time_entry_plural)%></h3>
 <%= link_to(l(:label_overall_spent_time), {:controller => 'time_entries'}) %><br />
-<% end %>
+<% end -%>
 <%= call_hook(:view_cross_sidebar_time_entries_bottom) %>
 
 <h3><%=l(:label_activity) %></h3>
