@@ -1,3 +1,0 @@
-= better_crossprojects
-
-Description goes here
