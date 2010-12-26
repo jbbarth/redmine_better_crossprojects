@@ -1,5 +1,7 @@
 require 'redmine'
 
+require 'better_crossprojects_hooks'
+
 Redmine::Plugin.register :redmine_better_crossprojects do
   name 'Redmine Better Crossprojects plugin'
   author 'Jean-Baptiste BARTH'
@@ -7,4 +9,8 @@ Redmine::Plugin.register :redmine_better_crossprojects do
   author_url 'mailto:jeanbaptiste.barth@gmail.com'
   requires_redmine :version_or_higher => '1.0.0'
   version '0.1'
+end
+
+Redmine::MenuManager.map :project_menu do |menu|
+  menu.delete :new_issue
 end
