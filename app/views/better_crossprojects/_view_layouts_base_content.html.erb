@@ -16,7 +16,7 @@ var hidden = <%= params[:controller] == 'issues' ? 'false' : 'true' %>;
 if (hidden) { tab.hide(); }
 
 function delayShowNewIssueTab() {
-  timer = setTimeout('showNewIssueTab()',500);
+  timer = setTimeout('showNewIssueTab()',700);
 }
 
 function cancelNewIssueTab() {
@@ -45,7 +45,7 @@ function hideNewIssueTab() {
 
 Event.observe(elem, 'mouseover', delayShowNewIssueTab);
 Event.observe(elem, 'mouseout', cancelNewIssueTab);
-Event.observe(elem.firstDescendant(), 'click', cancelNewIssueTab);
+Event.observe(elem, 'click', cancelNewIssueTab);
 Event.observe(window, 'dom:loaded', insertNewIssueTab);
 //]]>
 </script>
