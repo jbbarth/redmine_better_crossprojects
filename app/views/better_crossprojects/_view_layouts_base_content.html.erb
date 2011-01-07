@@ -12,7 +12,7 @@ var link = '<%= link_to '<span style="font-weight:bolder">+</span>',
                         {:controller => 'issues', :action => 'new', :project_id => @project},
                         :class => @class, :style => 'padding:4px 5px 8px' -%>';
 var tab = new Element('li',{id:'new_issue_tab',style:'margin-left:-3px'}).update(link);
-var hidden = <%= params[:controller] == 'issues' && params[:action] != 'index' ? 'false' : 'true' %>;
+var hidden = <%= params[:controller] == 'issues' ? 'false' : 'true' %>;
 if (hidden) { tab.hide(); }
 
 function delayShowNewIssueTab() {
