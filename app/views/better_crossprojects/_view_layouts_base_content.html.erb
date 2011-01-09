@@ -1,4 +1,4 @@
-<% if @project.present? -%>
+<% if @project.present? && User.current.allowed_to?(:add_issues, @project) -%>
 
 <script type="text/javascript">
 //<![CDATA[
