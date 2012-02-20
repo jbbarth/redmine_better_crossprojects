@@ -12,5 +12,5 @@ Redmine::Plugin.register :redmine_better_crossprojects do
 end
 
 Redmine::MenuManager.map :project_menu do |menu|
-  menu.delete :new_issue
+  #menu.delete :new_issue
 end
