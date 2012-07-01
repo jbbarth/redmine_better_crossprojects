@@ -1,5 +1,5 @@
 <% if @project -%>
-  <%= render :file => File.join(Rails.root,'app/views/issues/_sidebar.rhtml') %>
+  <%= render :file => File.join(Rails.root,'app/views/issues/_sidebar.html.erb') %>
 <% else -%>
   <%= render 'common/cross_sidebar' %>
 <% end -%>
