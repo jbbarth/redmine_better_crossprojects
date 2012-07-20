@@ -11,7 +11,16 @@
 <% end -%>
 <%= call_hook(:view_cross_sidebar_issues_bottom) %>
 
-<%= render_sidebar_queries %>
+<% if defined?(sidebar_queries) && sidebar_queries.present? -%>
+  <h3><%= l(:label_my_queries) %></h3>
+  <% sidebar_queries.select{|q| !q.is_public?}.each do |query| -%>
+    <%= link_to(h(query.name), :controller => 'issues', :action => 'index', :query_id => query) %><br />
+  <% end -%>
+  <h3><%= l(:label_query_plural) %></h3>
+  <% sidebar_queries.select{|q| q.is_public?}.each do |query| -%>
+    <%= link_to(h(query.name), :controller => 'issues', :action => 'index', :query_id => query) %><br />
+  <% end -%>
+<% end -%>
 
 <% if User.current.allowed_to?(:view_time_entries, nil, :global => true) \
   && EnabledModule.first(:conditions => {:name => "time_tracking"}) %>
