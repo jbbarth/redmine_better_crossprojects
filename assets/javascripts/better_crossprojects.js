@@ -1,3 +1,4 @@
+/*
 Effect.BlindRight = function(element) {
   element = $(element);
   var elementDimensions = element.getDimensions();
@@ -37,3 +38,4 @@ Effect.BlindLeft = function(element) {
     }
   }, arguments[1] || { }));
 };
+*/
