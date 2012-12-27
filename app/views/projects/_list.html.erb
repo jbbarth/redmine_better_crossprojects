@@ -1,13 +1,28 @@
-<% users_count = Member.joins(:user).where("#{Principal.table_name}.status = 1").group("project_id").count %>
-<% issues_open_count = Issue.open.group("project_id").count %>
-<% issues_closed_count = Issue.open(false).group("project_id").count %>
+<%
+  users_count = Member.joins(:user).where("#{Principal.table_name}.status = 1").group("project_id").count
+  issues_open_count = Issue.open.group("project_id").count
+  issues_closed_count = Issue.open(false).group("project_id").count
+  nmonths = 6
+  start_point = Date.today - nmonths.months
+  activity = projects.inject({}){|memo,project| memo[project.id] = [0]*(52*nmonths/12).ceil; memo }
+  records = Issue.select("created_on, project_id").where("created_on > ? and project_id in (?)", start_point, projects.map(&:id))
+  records += Journal.select("#{Journal.table_name}.created_on, project_id").joins(:issue)
+                    .where("notes is not null and #{Journal.table_name}.created_on > ? and project_id in (?)",
+                           start_point, projects.map(&:id))
+  records.each do |record|
+    id = record.project_id
+    n = ((record.created_on.to_date - start_point) / 7).to_i
+    activity[id][n] += 1 if activity[id] && activity[id][n]
+  end
+%>
 
 <table class="projects-list">
   <thead>
     <tr>
       <th colspan=2 style="text-align:left"><%= l(:field_name) %></th>
       <th><%= l(:label_user_plural) %></th>
-      <th><%= l(:label_issue_plural) %> (<%= l(:label_open_issues) %>/<%= l(:label_closed_issues) %>)</th>
+      <th><%= l(:label_issue_plural) %></th>
+      <th><%= l(:label_activity) %></th>
     </tr>
   </thead>
   <tbody>
@@ -30,6 +45,9 @@
     </td>
     <td class=issues>
       <%= issues_open_count[project.id].to_i %> / <%= issues_closed_count[project.id].to_i %>
+    </td>
+    <td class=activity>
+      <span class=barchart><%= activity[project.id].join(",") %></span>
     </td>
   </tr>
 <% end %>
