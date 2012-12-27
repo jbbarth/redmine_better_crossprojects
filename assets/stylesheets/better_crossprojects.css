@@ -1,8 +1,8 @@
 tr.project.idnt td.name span { background:none; }
-.projects-list { width:100%; }
+.projects-list { width:100%; margin:10px 0; }
 .projects-list .odd { background-color:#f8f9fa; }
 .projects-list th { font-weight:normal; color:#888; }
-.projects-list td { padding:6px 5px; }
+.projects-list td, .projects-list th { padding:6px 5px; }
 .projects-list .membership, .projects-list .issues, .projects-list .users { text-align:center; font-size:90%; color:#888; width:100px; }
 .projects-list .activity { width:160px; padding:0 5px !important; }
 .projects-list .activity .barchart { display:none; }
