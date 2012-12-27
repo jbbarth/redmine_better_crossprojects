@@ -1,0 +1,9 @@
+tr.project.idnt td.name span { background:none; }
+.projects-list { width:100%; }
+.projects-list .odd { background-color:#f8f9fa; }
+.projects-list th { font-weight:normal; color:#888; }
+.projects-list td { padding:6px 5px; }
+.projects-list .membership, .projects-list .issues, .projects-list .users { text-align:center; font-size:90%; color:#888; width:120px; }
+.projects-list .am-i-member { box-sizing:border-box; min-width:16px; }
+.projects-list .am-i-member.member { color:#2a4; }
+.projects-list .am-i-member.not-member { color:#aaa; }

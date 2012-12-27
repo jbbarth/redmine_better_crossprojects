@@ -1,5 +1,6 @@
 <% content_for :header_tags do %>
-    <%= auto_discovery_link_tag(:atom, {:action => 'index', :format => 'atom', :key => User.current.rss_key}) %>
+  <%= auto_discovery_link_tag(:atom, {:action => 'index', :format => 'atom', :key => User.current.rss_key}) %>
+  <%= stylesheet_link_tag 'better_crossprojects', :plugin => 'redmine_better_crossprojects' %>
 <% end %>
 
 <div class="contextual">
@@ -8,7 +9,7 @@
 
 <h2><%=l(:label_project_plural)%></h2>
 
-<%= render_project_hierarchy(@projects)%>
+<%= render :partial => 'list', :locals => {:projects => @projects} %>
 
 <% if User.current.logged? %>
 <p style="text-align:right;">

@@ -1,0 +1,37 @@
+<% users_count = Member.joins(:user).where("#{Principal.table_name}.status = 1").group("project_id").count %>
+<% issues_open_count = Issue.open.group("project_id").count %>
+<% issues_closed_count = Issue.open(false).group("project_id").count %>
+
+<table class="projects-list">
+  <thead>
+    <tr>
+      <th colspan=2 style="text-align:left"><%= l(:field_name) %></th>
+      <th><%= l(:label_user_plural) %></th>
+      <th><%= l(:label_issue_plural) %> (<%= l(:label_open_issues) %>/<%= l(:label_closed_issues) %>)</th>
+    </tr>
+  </thead>
+  <tbody>
+<% project_tree(projects) do |project, level| %>
+  <tr class="<%= cycle "even", "odd" %> <%= project.css_classes %> <%= level > 0 ? "idnt idnt-#{level}" : nil %>">
+    <td class=name>
+      <span class="project-name">
+        <%= link_to_project(project, {:action => (project.active? ? 'settings' : 'show')}, :title => project.short_description) %>
+      </span>
+    </td>
+    <td class=membership>
+      <% if User.current.member_of?(project) %>
+        <span class="am-i-member member"><%= l(:member) %></span>
+      <% else %>
+        <span class="am-i-member not-member"><%= l(:not_member) %></span>
+      <% end %>
+    </td>
+    <td class=users>
+      <%= users_count[project.id].to_i %>
+    </td>
+    <td class=issues>
+      <%= issues_open_count[project.id].to_i %> / <%= issues_closed_count[project.id].to_i %>
+    </td>
+  </tr>
+<% end %>
+  </tbody>
+</table>
