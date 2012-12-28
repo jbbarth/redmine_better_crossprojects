@@ -27,7 +27,7 @@
           <%= User.current.roles_for_project(project).map(&:name).join("<br>").html_safe %>
         </div>
       <% else %>
-        <div class="am-i-member not-member"><%= l(:not_member) %></div>
+        <div class="am-i-member not-member"><%= l(:label_role_non_member) %></div>
       <% end %>
     </td>
     <td class=users>
