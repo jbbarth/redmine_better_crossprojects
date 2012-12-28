@@ -1,6 +1,12 @@
 tr.project.idnt td.name span { background:none; }
 .projects-list { width:100%; margin:10px 0; }
 .projects-list .odd { background-color:#f8f9fa; }
+.projects-list .more { opacity:0; color:#888; padding:0 5px; cursor:pointer; }
+.projects-list .contextual { margin-top:0; }
+.projects-list .project-more { display:none; }
+.projects-list .project-more td { border-bottom:1px solid #eee; }
+.projects-list .project-description { color:#888; margin:5px 20px 15px; padding:6px 10px; }
+.projects-list tr:hover .more { opacity:1; }
 .projects-list th { font-weight:normal; color:#888; }
 .projects-list td, .projects-list th { padding:6px 5px; }
 .projects-list .membership, .projects-list .issues, .projects-list .users { text-align:center; font-size:90%; color:#888; width:100px; }

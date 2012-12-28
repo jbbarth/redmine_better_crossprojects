@@ -13,6 +13,9 @@
 <% project_tree(projects) do |project, level| %>
   <tr class="<%= cycle "even", "odd" %> <%= project.css_classes %> <%= level > 0 ? "idnt idnt-#{level}" : nil %>">
     <td class=name>
+      <div class=contextual>
+        <span class=more>[<%= l(:label_more) %>]</span>
+      </div>
       <span class="project-name">
         <%= link_to_project(project, {:action => (project.active? ? 'settings' : 'show')}, :title => project.short_description) %>
       </span>
@@ -32,6 +35,13 @@
     </td>
     <td class=activity>
       <span class=barchart><%= summary.activity_statistics[project.id].join(",") %></span>
+    </td>
+  </tr>
+  <tr class=project-more>
+    <td colspan=5>
+      <div class=project-description>
+        <%= textilizable project.description %>
+      </div>
     </td>
   </tr>
 <% end %>
