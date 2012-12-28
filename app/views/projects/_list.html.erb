@@ -11,7 +11,8 @@
   </thead>
   <tbody>
 <% project_tree(projects) do |project, level| %>
-  <tr class="<%= cycle "even", "odd" %> <%= project.css_classes %> <%= level > 0 ? "idnt idnt-#{level}" : nil %>">
+  <% css_classes = "#{cycle "even", "odd"} #{project.css_classes} #{level > 0 ? "idnt idnt-#{level}" : nil}" %>
+  <tr class="<%= css_classes %>">
     <td class=name>
       <div class=contextual>
         <span class=more>[<%= l(:label_more) %>]</span>
@@ -37,8 +38,8 @@
       <span class=barchart><%= summary.activity_statistics[project.id].join(",") %></span>
     </td>
   </tr>
-  <tr class=project-more>
-    <td colspan=5>
+  <tr class="<%= css_classes %> project-more">
+    <td class="project-summary name" colspan=5>
       <div class=project-description>
         <%= textilizable project.description %>
       </div>
