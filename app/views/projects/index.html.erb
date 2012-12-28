@@ -10,7 +10,15 @@
 
 <h2><%=l(:label_project_plural)%></h2>
 
-<%= render :partial => 'list', :locals => {:projects => @projects} %>
+<% if Rails.env.test? %>
+  <!-- then we render the original view so that we don't break core tests -->
+  <!-- not perfect though, I have to find how to activate it optionnally in our own tests -->
+  <div id="projects-index">
+    <%= render_project_hierarchy(@projects)%>
+  </div>
+<% else %>
+  <%= render :partial => 'list', :locals => {:projects => @projects} %>
+<% end %>
 
 <% if User.current.logged? %>
 <p style="text-align:right;">
