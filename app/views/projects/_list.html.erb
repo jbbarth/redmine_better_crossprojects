@@ -32,7 +32,8 @@
       <%= summary.users_count[project.id].to_i %>
     </td>
     <td class=issues>
-      <%= summary.issues_open_count[project.id].to_i %> / <%= summary.issues_closed_count[project.id].to_i %>
+      <span title="<%= l(:label_open_issues_plural) %>"><%= summary.issues_open_count[project.id].to_i %></span> /
+      <span title="<%= l(:label_closed_issues_plural) %>"><%= summary.issues_closed_count[project.id].to_i %></span>
     </td>
     <td class=activity>
       <span class=barchart><%= summary.activity_statistics[project.id].join(",") %></span>
