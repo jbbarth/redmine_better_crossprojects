@@ -1,5 +1,5 @@
 tr.project.idnt td.name span { background:none; }
-.projects-list { width:100%; margin:10px 0; border-collapse:collapse; }
+.projects-list { width:100%; margin:10px 0; border-collapse:collapse; cursor:default; }
 .projects-list .odd { background-color:#f8f9fa; }
 .projects-list .more { opacity:0; color:#888; padding:0 5px; cursor:pointer; }
 .projects-list .contextual { margin-top:0; }
