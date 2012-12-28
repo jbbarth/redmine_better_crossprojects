@@ -23,9 +23,11 @@
     </td>
     <td class=membership>
       <% if User.current.member_of?(project) %>
-        <span class="am-i-member member"><%= l(:member) %></span>
+        <div class="am-i-member member">
+          <%= User.current.roles_for_project(project).map(&:name).join("<br>").html_safe %>
+        </div>
       <% else %>
-        <span class="am-i-member not-member"><%= l(:not_member) %></span>
+        <div class="am-i-member not-member"><%= l(:not_member) %></div>
       <% end %>
     </td>
     <td class=users>
