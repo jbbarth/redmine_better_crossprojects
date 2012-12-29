@@ -16,7 +16,7 @@
   </thead>
   <tbody>
 <% project_tree(projects) do |project, level| %>
-  <% css_classes = "#{cycle "even", "odd"} #{project.css_classes} #{level > 0 ? "idnt idnt-#{level}" : nil}" %>
+  <% css_classes = "#{cycle "odd", "even"} #{project.css_classes} #{level > 0 ? "idnt idnt-#{level}" : nil}" %>
   <tr class="<%= css_classes %>">
     <td class="name project-more-toggle">
       <div class=contextual>
