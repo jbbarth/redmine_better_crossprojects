@@ -20,7 +20,7 @@
   <tr class="<%= css_classes %>">
     <td class=name>
       <div class=contextual>
-        <span class=more>[<%= l(:label_more) %>]</span>
+        <span class=more>[<%= l(:label_more).downcase %>]</span>
       </div>
       <span class="project-name">
         <%= link_to_project(project, {:action => 'show'}, :title => project.short_description) %>
