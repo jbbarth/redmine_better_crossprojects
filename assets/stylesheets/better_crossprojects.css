@@ -4,7 +4,7 @@ tr.project.idnt td.name span { background:none; }
 .projects-list .more { opacity:0; color:#888; padding:0 5px; cursor:pointer; }
 .projects-list .contextual { margin-top:0; }
 .projects-list .project-more { display:none; }
-.projects-list .project-description { color:#888; margin:5px 16px; }
+.projects-list .project-description { color:#666; margin-left:16px; margin-bottom:10px; font-size:90%; }
 .projects-list tr:hover .more { opacity:1; }
 .projects-list th { vertical-align:top; font-weight:normal; color:#555; background-color:#f8f9fa; border-bottom:1px solid #ebebee; padding:5px 8px; }
 .projects-list th .filter { margin:3px 0 2px; width:240px; box-sizing:border-box; border-radius:2px; border:1px solid #aaa; height:18px; }
