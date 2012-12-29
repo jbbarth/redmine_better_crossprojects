@@ -1,7 +1,7 @@
 tr.project.idnt td.name span { background:none; }
 .projects-list { width:100%; margin:10px 0; border-collapse:collapse; cursor:default; }
-.projects-list .even, .projects-list .even+tr { background-color:#fff; }
-.projects-list .odd, .projects-list .odd+tr { background-color:#f8f9fa; }
+.projects-list .even, .projects-list .even+.even-odd-linked { background-color:#fff; }
+.projects-list .odd, .projects-list .odd+.even-odd-linked { background-color:#f8f9fa; }
 .projects-list .more { opacity:0; color:#888; font-size:90%; padding:0 5px; cursor:pointer; }
 .projects-list .contextual { margin-top:0; }
 .projects-list .project-more { display:none; }
