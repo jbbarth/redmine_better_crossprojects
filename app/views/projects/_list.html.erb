@@ -46,7 +46,7 @@
       <span class=barchart><%= summary.activity_statistics[project.id].join(",") %></span>
     </td>
   </tr>
-  <tr class="<%= css_classes %> project-more">
+  <tr class="<%= css_classes.gsub(/(even|odd) /,"") %> project-more">
     <td class="project-summary name" colspan=5>
       <div class=project-description>
         <%= textilizable project.description %>
