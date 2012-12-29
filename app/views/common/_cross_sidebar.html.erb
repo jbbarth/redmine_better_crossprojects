@@ -12,12 +12,15 @@
 <%= call_hook(:view_cross_sidebar_issues_bottom) %>
 
 <% if defined?(sidebar_queries) && sidebar_queries.present? -%>
-  <h3><%= l(:label_my_queries) %></h3>
-  <% sidebar_queries.select{|q| !q.is_public?}.each do |query| -%>
-    <%= link_to(h(query.name), :controller => 'issues', :action => 'index', :query_id => query) %><br />
-  <% end -%>
+  <% public_queries, private_queries = sidebar_queries.partition{|q| q.is_public?} %>
+  <% if private_queries.any? %>
+    <h3><%= l(:label_my_queries) %></h3>
+    <% private_queries.each do |query| -%>
+      <%= link_to(h(query.name), :controller => 'issues', :action => 'index', :query_id => query) %><br />
+    <% end -%>
+  <% end %>
   <h3><%= l(:label_query_plural) %></h3>
-  <% sidebar_queries.select{|q| q.is_public?}.each do |query| -%>
+  <% public_queries.each do |query| -%>
     <%= link_to(h(query.name), :controller => 'issues', :action => 'index', :query_id => query) %><br />
   <% end -%>
 <% end -%>
