@@ -26,6 +26,7 @@ $(function() {
         count++
       } else {
         $elem.hide()
+        $elem.next().hide()
       }
     })
   })
