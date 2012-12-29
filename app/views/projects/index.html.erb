@@ -1,6 +1,7 @@
 <% content_for :header_tags do %>
   <%= auto_discovery_link_tag(:atom, {:action => 'index', :format => 'atom', :key => User.current.rss_key}) %>
   <%= javascript_include_tag 'jquery.peity.min.js', :plugin => 'redmine_better_crossprojects' %>
+  <%= javascript_include_tag 'better_crossprojects', :plugin => 'redmine_better_crossprojects' %>
   <%= stylesheet_link_tag 'better_crossprojects', :plugin => 'redmine_better_crossprojects' %>
 <% end %>
 

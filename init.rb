@@ -1,7 +1,5 @@
 require 'redmine'
 
-require 'better_crossprojects_hooks'
-
 # Little hack for using the 'deface' gem in redmine:
 # - redmine plugins are not railties nor engines, so deface overrides in app/overrides/ are not detected automatically
 # - deface doesn't support direct loading anymore ; it unloads everything at boot so that reload in dev works
