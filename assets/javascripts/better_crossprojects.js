@@ -3,7 +3,7 @@ $(function() {
   $(".barchart").peity("bar", { colours: ["#aaa"], min: 0, max: 10,
                                 height:20, width: (27*(5+1)-1) });
   //hide/show description of projects
-  $("table").on("click", ".name", function(event) {
+  $("table").on("click", ".project-more-toggle", function(event) {
     if (event.target.tagName != "A") {
       $(this).closest("tr").next().toggle()
     }
