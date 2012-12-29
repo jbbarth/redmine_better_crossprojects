@@ -21,12 +21,6 @@
   <%= render :partial => 'list', :locals => {:projects => @projects} %>
 <% end %>
 
-<% if User.current.logged? %>
-<p style="text-align:right;">
-<span class="my-project"><%= l(:label_my_projects) %></span>
-</p>
-<% end %>
-
 <% other_formats_links do |f| %>
 	<%= f.link_to 'Atom', :url => {:key => User.current.rss_key} %>
 <% end %>
