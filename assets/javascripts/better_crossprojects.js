@@ -22,7 +22,7 @@ $(function() {
         //restablish even/odd alternance
         $elem.removeClass("even")
         $elem.removeClass("odd")
-        $elem.addClass(["even", "odd"][count % 2])
+        $elem.addClass(["odd", "even"][count % 2])
         count++
       } else {
         $elem.hide()
