@@ -13,15 +13,17 @@
 
 <% if defined?(sidebar_queries) && sidebar_queries.present? -%>
   <% public_queries, private_queries = sidebar_queries.partition{|q| q.is_public?} %>
-  <% if private_queries.any? %>
-    <h3><%= l(:label_my_queries) %></h3>
+  <%= content_tag(:div, :class => 'subsection') do %>
+    <h4><%= l(:label_my_queries) %></h4>
     <% private_queries.each do |query| -%>
       <%= link_to(h(query.name), :controller => 'issues', :action => 'index', :query_id => query) %><br />
     <% end -%>
-  <% end %>
-  <h3><%= l(:label_query_plural) %></h3>
-  <% public_queries.each do |query| -%>
-    <%= link_to(h(query.name), :controller => 'issues', :action => 'index', :query_id => query) %><br />
+  <% end if private_queries.any? -%>
+  <h4><%= l(:label_query_plural) %></h4>
+  <%= content_tag(:div, :class => 'subsection') do %>
+    <% public_queries.each do |query| -%>
+      <%= link_to(h(query.name), :controller => 'issues', :action => 'index', :query_id => query) %><br />
+    <% end -%>
   <% end -%>
 <% end -%>
 
