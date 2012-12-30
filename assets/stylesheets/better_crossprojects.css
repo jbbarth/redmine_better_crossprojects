@@ -10,7 +10,7 @@ tr.project.idnt td.name span { background:none; }
 .projects-list .membership, .projects-list .issues, .projects-list .users { text-align:center; font-size:90%; color:#888; width:100px; }
 .projects-list .activity { width:160px; padding:0 5px !important; }
 .projects-list .activity .barchart { display:none; }
-.projects-list .activity canvas { border-width:0 0 1px 1px; border-style:solid; border-color:#f3f3f3; margin-bottom:-4px; }
+.projects-list .activity canvas { border-width:0 0 1px 1px; border-style:solid; border-color:#e8e8e8; margin-bottom:-12px; }
 .projects-list .am-i-member { white-space:nowrap; }
 .projects-list .am-i-member.member { color:#2a4; }
 .projects-list .am-i-member.not-member { color:#aaa; }
