@@ -7,8 +7,12 @@
   <%= link_to(l(:label_issues_visibility_all), issues_path) %><br />
 <% end -%>
 <% if User.current.allowed_to?(:view_gantt, nil, :global => true) %>
-  <%= link_to(l(:label_gantt), :controller => 'gantts', :action => 'show') %><br />
+  <%= link_to(l(:label_gantt), :controller => 'gantts', :action => 'show') %>
 <% end -%>
+<% if User.current.allowed_to?(:view_gantt, nil, :global => true) %>
+  | <%= link_to(l(:label_calendar), :controller => 'calendars', :action => 'show') %>
+<% end -%>
+<br />
 <%= call_hook(:view_cross_sidebar_issues_bottom) %>
 
 <% if defined?(sidebar_queries) && sidebar_queries.present? -%>
