@@ -9,9 +9,9 @@ $(function() {
     }
   })
   //focus on search field on load
-  $("#filter-by-name").focus()
+  $("#filter-by-project-name").focus()
   //filter projects depending on input value
-  $("#filter-by-name").on("keyup", function() {
+  $("#filter-by-project-name").on("keyup", function() {
     var needle = $.trim($(this).val().toLowerCase())
     var count = 0
     $(".projects-list .project-name a").each(function() {
