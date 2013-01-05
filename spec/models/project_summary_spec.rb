@@ -4,13 +4,13 @@ describe ProjectSummary do
   fixtures :projects, :members, :users,
            :issues, :issue_statuses, :journals
 
-  let(:projects) { Project.all }
-  let(:summary) { ProjectSummary.new(projects) }
+  let(:project_ids) { Project.pluck(:id) }
+  let(:summary) { ProjectSummary.new(project_ids) }
 
-  describe "#projects" do
-    it "gives access to projects" do
-      projects = stub
-      ProjectSummary.new(projects).projects.should == projects
+  describe "#project_ids" do
+    it "gives access to project_ids" do
+      project_ids = stub
+      ProjectSummary.new(project_ids).project_ids.should == project_ids
     end
   end
 
@@ -43,14 +43,12 @@ describe ProjectSummary do
   describe "#activity_statistics" do
     it "initializes statistics even if project has no records" do
       p = Project.create!(:name => "Project X", :identifier => "p-x")
-      summary = ProjectSummary.new([p])
+      summary = ProjectSummary.new([p.id])
       summary.activity_statistics[p.id].uniq.should == [0]
     end
 
     it "builds statistics based upon activity_records" do
-      summary.stub(:projects) {
-        [stub(:id => 1)]
-      }
+      summary.stub(:project_ids) { [1] }
       summary.stub(:activity_records) {
         [stub(:project_id => 1, :created_on => Date.today),
          stub(:project_id => 1, :created_on => Date.today)]

@@ -1,4 +1,4 @@
-<% summary = ProjectSummary.new(projects) %>
+<% summary = ProjectSummary.new(projects.map(&:id)) %>
 
 <table class="projects-list list">
   <thead>

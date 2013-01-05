@@ -1,25 +1,25 @@
 class ProjectSummary
-  attr_reader :projects
+  attr_reader :project_ids
 
-  def initialize(projects)
-    @projects = projects
+  def initialize(project_ids)
+    @project_ids = project_ids
   end
 
   def users_count
-    @users ||= Member.where("project_id in (?)", projects)
+    @users ||= Member.where("project_id in (?)", project_ids)
                      .joins(:user).where("#{Principal.table_name}.status = 1")
                      .group("project_id")
                      .count
   end
 
   def issues_open_count
-    @open ||= Issue.where("project_id in (?)", projects)
+    @open ||= Issue.where("project_id in (?)", project_ids)
                    .open.group("project_id")
                    .count
   end
 
   def issues_closed_count
-    @closed ||= Issue.where("project_id in (?)", projects)
+    @closed ||= Issue.where("project_id in (?)", project_ids)
                      .open(false).group("project_id")
                      .count
   end
@@ -39,17 +39,17 @@ class ProjectSummary
   def activity_records
     return @records if @records
     @records = Issue.select("created_on, project_id").where("created_on > ? and project_id in (?)",
-                                                            activity_period_begin, projects.map(&:id))
+                                                            activity_period_begin, project_ids)
     @records += Journal.select("#{Journal.table_name}.created_on, project_id").joins(:issue)
                        .where("notes is not null and #{Journal.table_name}.created_on > ? and project_id in (?)",
-                              activity_period_begin, projects.map(&:id))
+                              activity_period_begin, project_ids)
     @records
   end
 
   def activity_statistics
     return @stats if @stats
-    @stats = projects.inject({}) do |memo,project|
-      memo[project.id] = [0]*(activity_period/7).ceil
+    @stats = project_ids.inject({}) do |memo,project_id|
+      memo[project_id] = [0]*(activity_period/7).ceil
       memo
     end
     activity_records.each do |record|
