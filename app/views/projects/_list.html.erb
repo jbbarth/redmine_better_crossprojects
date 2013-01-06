@@ -1,5 +1,3 @@
-<% summary = ProjectSummary.new(projects.map(&:id)) %>
-
 <table class="projects-list list">
   <thead>
     <tr>
@@ -17,7 +15,7 @@
   <tbody>
 <% project_tree(projects) do |project, level| %>
   <% css_classes = "#{cycle "odd", "even"} #{project.css_classes} #{level > 0 ? "idnt idnt-#{level}" : nil}" %>
-  <tr class="<%= css_classes %>">
+  <tr class="<%= css_classes %>" id="project-line-<%= project.id %>">
     <td class="name project-more-toggle">
       <div class=contextual>
         <span class=more>[<%= l(:label_more).downcase %>]</span>
@@ -35,15 +33,13 @@
         <div class="am-i-member not-member"><%= l(:label_role_non_member) %></div>
       <% end %>
     </td>
-    <td class=users>
-      <%= summary.users_count[project.id].to_i %>
-    </td>
+    <td class=users></td>
     <td class=issues>
-      <span title="<%= l(:label_open_issues_plural) %>"><%= summary.issues_open_count[project.id].to_i %></span> /
-      <span title="<%= l(:label_closed_issues_plural) %>"><%= summary.issues_closed_count[project.id].to_i %></span>
+      <span class="open_issues" title="<%= l(:label_open_issues_plural) %>"></span> /
+      <span class="closed_issues" title="<%= l(:label_closed_issues_plural) %>"></span>
     </td>
     <td class=activity>
-      <span class=barchart><%= summary.activity_statistics[project.id].join(",") %></span>
+      <span class=barchart></span>
     </td>
   </tr>
   <tr class="<%= css_classes.gsub(/(even|odd) /,"even-odd-linked ") %> project-more">
@@ -56,3 +52,32 @@
 <% end %>
   </tbody>
 </table>
+
+
+<% cache ["project-statistics", User.current, Project.last,
+          MemberRole.last, Issue.last, Journal.last, Date.today] do %>
+<script type=text/javascript>
+<% summary = ProjectSummary.new(projects.map(&:id)) %>
+cache = {
+  <% projects.each do |project| %>
+      <%= project.id %>: { stats: "<%= summary.activity_statistics[project.id].join(",") %>",
+                           users: <%= summary.users_count[project.id].to_i %>,
+                           open_issues: <%= summary.issues_open_count[project.id].to_i %>,
+                           closed_issues: <%= summary.issues_closed_count[project.id].to_i %> },
+  <% end %>
+}
+$(function() {
+  var $p
+<% projects.each do |project| %>
+  $p = $("#project-line-<%=project.id%>")
+  $p.find(".barchart").html(cache[<%=project.id%>].stats)
+  $p.find(".users").html(cache[<%=project.id%>].users)
+  $p.find(".open_issues").html(cache[<%=project.id%>].open_issues)
+  $p.find(".closed_issues").html(cache[<%=project.id%>].closed_issues)
+<% end %>
+  //draw activity sparklines on projects/index page
+  $(".barchart").peity("bar", { colours: ["#aaa"], min: 0, max: 10,
+                                height:20, width: (27*(5+1)-1) })
+})
+</script>
+<% end %>
