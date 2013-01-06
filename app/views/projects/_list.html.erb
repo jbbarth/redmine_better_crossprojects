@@ -54,8 +54,10 @@
 </table>
 
 
-<% cache ["project-statistics", User.current, Project.last,
-          MemberRole.last, Issue.last, Journal.last, Date.today] do %>
+<%
+#redmine doesn't uses updated_at but updated_on, which is not handled by AR#cache_key
+user_key = "users/#{User.current.id}-#{User.current.updated_on.utc.to_s(:number)}"
+cache ["project-statistics", user_key, Project.last, MemberRole.last, Issue.last, Journal.last, Date.today] do %>
 <script type=text/javascript>
 <% summary = ProjectSummary.new(projects.map(&:id)) %>
 cache = {
