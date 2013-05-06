@@ -16,3 +16,5 @@ tr.project.idnt td.name span { background:none; }
 .projects-list .am-i-member { white-space:nowrap; }
 .projects-list .am-i-member.member { color:#2a4; }
 .projects-list .am-i-member.not-member { color:#aaa; }
+#sidebar h4 { border-bottom:none; margin:8px 10px 4px; }
+#sidebar .subsection { padding-left:10px; }
