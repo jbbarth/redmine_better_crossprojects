@@ -1,3 +1,10 @@
+<%
+  #pre-load current user's memberships
+  @memberships = User.current.memberships.inject({}) do |memo, membership|
+    memo[membership.project_id] = membership.roles
+    memo
+  end
+%>
 <table class="projects-list list">
   <thead>
     <tr>
@@ -25,9 +32,9 @@
       </span>
     </td>
     <td class=membership>
-      <% if User.current.member_of?(project) %>
+      <% if @memberships[project.id].present? %>
         <div class="am-i-member member">
-          <%= User.current.roles_for_project(project).map(&:name).join("<br>").html_safe %>
+          <%= @memberships[project.id].map(&:name).join("<br>").html_safe %>
         </div>
       <% else %>
         <div class="am-i-member not-member"><%= l(:label_role_non_member) %></div>
