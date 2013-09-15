@@ -9,22 +9,7 @@ $(function() {
   $("#filter-by-project-name").focus()
   //filter projects depending on input value
   $("#filter-by-project-name").on("keyup", function() {
-    var needle = $.trim($(this).val().toLowerCase())
-    var count = 0
-    $(".projects-list .project-name a").each(function() {
-      var name = $(this).html().toLowerCase()
-      var $elem = $(this).closest('tr')
-      if (name.indexOf(needle) >= 0) {
-        $elem.show()
-        //restablish even/odd alternance
-        $elem.removeClass("even")
-        $elem.removeClass("odd")
-        $elem.addClass(["odd", "even"][count % 2])
-        count++
-      } else {
-        $elem.hide()
-        $elem.next().hide()
-      }
-    })
+    $(".projects-list > tbody > tr").not("[data-project-name*="+$(this).val()+"]").hide()
+    $(".projects-list > tbody > tr[data-project-name*="+$(this).val()+"]").show()
   })
 })
