@@ -14,7 +14,7 @@ require 'rspec'
 #
 # Please please please tell me if you have a better idea,
 # I'd gladly offer a beer or two.
-class Foo < ActiveSupport::TestCase
+class RedmineBetterCrossprojectsSpec < ActiveSupport::TestCase
   def test_specs
     assert_equal 0, RSpec::Core::Runner::run([File.expand_path('../../../spec', __FILE__)], $stderr, $stdout)
   end
