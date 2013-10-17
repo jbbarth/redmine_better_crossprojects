@@ -8,6 +8,7 @@ require 'rspec'
 require 'rspec/autorun'
 require 'rspec/mocks'
 require 'rspec/mocks/standalone'
+require 'rspec/rails'
 require 'pry'
 
 #load paths
@@ -19,10 +20,5 @@ RSpec.configure do |config|
   config.mock_with :rspec
   config.filter_run :focus => true
   config.run_all_when_everything_filtered = true
-end
-
-#fixtures!
-require 'rspec/rails'
-RSpec.configure do |config|
   config.fixture_path = File.expand_path('../../../../test/fixtures', __FILE__)
 end
