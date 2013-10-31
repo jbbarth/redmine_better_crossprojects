@@ -16,6 +16,7 @@ require 'rspec'
 # I'd gladly offer a beer or two.
 class RedmineBetterCrossprojectsSpec < ActiveSupport::TestCase
   def test_specs
+    @fixture_connections ||= []
     assert_equal 0, RSpec::Core::Runner::run([File.expand_path('../../../spec', __FILE__)], $stderr, $stdout)
   end
 end
