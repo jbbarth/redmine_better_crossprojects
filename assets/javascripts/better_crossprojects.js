@@ -9,7 +9,11 @@ $(function() {
   $("#filter-by-project-name").focus()
   //filter projects depending on input value
   $("#filter-by-project-name").on("keyup", function() {
-    $(".projects-list > tbody > tr").not("[data-project-name*="+$(this).val()+"]").hide()
-    $(".projects-list > tbody > tr[data-project-name*="+$(this).val()+"]").show()
+    if($(this).val()){
+      $(".projects-list > tbody > tr").not("[data-project-name*="+$(this).val()+"]").hide()
+      $(".projects-list > tbody > tr[data-project-name*="+$(this).val()+"]").show()
+    }else{
+      $(".projects-list > tbody > tr[data-project-name]").show()
+    }
   })
 })
