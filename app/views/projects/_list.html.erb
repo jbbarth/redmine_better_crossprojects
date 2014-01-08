@@ -1,92 +1,128 @@
-<%
-  #pre-load current user's memberships
-  @memberships = User.current.memberships.inject({}) do |memo, membership|
-    memo[membership.project_id] = membership.roles
-    memo
-  end
-%>
-<table class="projects-list list">
-  <thead>
-    <tr>
-      <th style="text-align:left">
-        <%= l(:field_name) %>
-        <br>
-        <input type=text name=filter-by-project-name id=filter-by-project-name class=filter>
-      </th>
-      <th><%= l(:label_role) %></th>
-      <th><%= l(:label_user_plural) %></th>
-      <th><%= l(:label_issue_plural) %></th>
-      <th><%= l(:label_activity) %></th>
-    </tr>
-  </thead>
-  <tbody>
-<% project_tree(projects) do |project, level| %>
-  <% css_classes = "#{cycle "odd", "even"} #{project.css_classes} #{level > 0 ? "idnt idnt-#{level}" : nil}" %>
-  <tr class="<%= css_classes %>" id="project-line-<%= project.id %>" data-project-name="<%= project.name.parameterize %>">
-    <td class="name project-more-toggle">
-      <div class=contextual>
-        <span class=more>[<%= l(:label_more).downcase %>]</span>
-      </div>
-      <span class="project-name">
-        <%= link_to_project(project, {:action => 'show'}, :title => project.short_description) %>
-      </span>
-    </td>
-    <td class=membership>
-      <% if @memberships[project.id].present? %>
-        <div class="am-i-member member">
-          <%= @memberships[project.id].map(&:name).join("<br>").html_safe %>
-        </div>
-      <% else %>
-        <div class="am-i-member not-member"><%= l(:label_role_non_member) %></div>
-      <% end %>
-    </td>
-    <td class=users></td>
-    <td class=issues>
-      <span class="open_issues" title="<%= l(:label_open_issues_plural) %>"></span> /
-      <span class="closed_issues" title="<%= l(:label_closed_issues_plural) %>"></span>
-    </td>
-    <td class=activity>
-      <span class=barchart></span>
-    </td>
-  </tr>
-  <tr class="<%= css_classes.gsub(/(even|odd) /,"even-odd-linked ") %> project-more">
-    <td class="project-summary name" colspan=5>
-      <div class=project-description>
-        <%= textilizable project.description %>
-      </div>
-    </td>
-  </tr>
+<%= form_tag({}) do -%>
+  <%= hidden_field_tag 'back_url', url_for(params), :id => nil %>
+  <div class="autoscroll">
+    <table class="projects-list list">
+      <thead>
+      <tr>
+        <% @query.inline_columns.each do |column| %>
+          <%= column_header(column) %>
+        <% end %>
+      </tr>
+      </thead>
+      <% previous_group = false %>
+      <tbody>
+      <% ProjectQuery.unsorted_project_tree(projects) do |project, level| -%>
+        <% if @query.grouped? && (group = @query.group_by_column.value(project)) != previous_group %>
+          <% reset_cycle %>
+          <tr class="group open">
+            <td colspan="<%= @query.inline_columns.size + 2 %>">
+              <span class="expander" onclick="toggleRowGroup(this);">&nbsp;</span>
+              <%= group.blank? ? l(:label_none) : column_content(@query.group_by_column, project) %> <span class="count"><%= @project_count_by_group[group] %></span>
+              <%= link_to_function("#{l(:button_collapse_all)}/#{l(:button_expand_all)}",
+                                   "toggleAllRowGroups(this)", :class => 'toggle-all') %>
+            </td>
+          </tr>
+          <% previous_group = group %>
+        <% end %>
+        <tr id="project-<%= project.id %>" class="hascontextmenu <%= cycle('odd', 'even') %> <%= project.css_classes %> <%= level > 0 ? "idnt idnt-#{level}" : nil %>">
+          <% columns = []
+             @query.inline_columns.map do |column|
+               additionnal_class = ""
+               case column.name
+                 when :activity
+                   column_content = "<span class=barchart></span>"
+                 when :organizations
+                   directions = []
+                   @organizations_map[project].each do |o|
+                     directions << @directions_map[o]
+                   end
+                   column_content = directions.uniq.compact.join(', ').html_safe
+                 when :name
+                   additionnal_class = "project-more-toggle"
+                   column_content = content_tag :div, class: "contextual" do
+                     content_tag :span, "[#{l(:label_more).downcase}]", class: "more"
+                   end
+                   column_content << content_tag(:span, (link_to_project(project, {}, :title => project.short_description)), class: "project-name")
+                   column_content
+                 else
+                   column_content = column_content(column, project)
+               end
+               columns << "<td class=\"#{column.css_classes} #{additionnal_class}\">#{column_content}</td>"
+             end
+          %>
+          <%= raw columns.join %>
+        </tr>
+        <% if @query.block_columns.empty? %>
+          <tr class="<%= current_cycle %> project-more">
+            <td class="project-summary name" colspan="<%= @query.inline_columns.size + 1 %>">
+              <div class=project-description>
+                <%= textilizable project.description %>
+              </div>
+            </td>
+          </tr>
+        <% end %>
+        <% @query.block_columns.each do |column|
+          if (text = column_content(column, project)) && text.present? -%>
+            <tr class="<%= current_cycle %>">
+              <td colspan="<%= @query.inline_columns.size + 1 %>" class="<%= column.css_classes %>"><%= text %></td>
+            </tr>
+          <% end -%>
+        <% end -%>
+      <% end -%>
+      </tbody>
+    </table>
+  </div>
+<% end -%>
+
+<% other_formats_links do |f| %>
+  <%= f.link_to 'Atom', :url => params.merge(:key => User.current.rss_key) %>
+  <%= f.link_to 'CSV', :url => params, :onclick => "showModal('csv-export-options', '330px'); return false;" %>
+  <%= f.link_to 'PDF', :url => params %>
 <% end %>
-  </tbody>
-</table>
 
-
-<%
-#redmine doesn't uses updated_at but updated_on, which is not handled by AR#cache_key
-user_key = "users/#{User.current.id}-#{User.current.updated_on.utc.to_s(:number)}"
-cache ["project-statistics", user_key, Project.last, Time.now.to_i.div(15)] do %>
-<script type=text/javascript>
-<% summary = ProjectSummary.new(projects.map(&:id)) %>
-cache = {
-  <% projects.each do |project| %>
-      <%= project.id %>: { stats: "<%= summary.activity_statistics[project.id].join(",") %>",
-                           users: <%= summary.users_count[project.id].to_i %>,
-                           open_issues: <%= summary.issues_open_count[project.id].to_i %>,
-                           closed_issues: <%= summary.issues_closed_count[project.id].to_i %> },
+<div id="csv-export-options" style="display:none;">
+  <h3 class="title"><%= l(:label_export_options, :export_format => 'CSV') %></h3>
+  <%= form_tag(params.merge({:format => 'csv',:page=>nil}), :method => :get, :id => 'csv-export-form') do %>
+    <p>
+      <label><%= radio_button_tag 'columns', '', true %> <%= l(:description_selected_columns) %></label><br />
+      <label><%= radio_button_tag 'columns', 'all' %> <%= l(:description_all_columns) %></label>
+    </p>
+    <p>
+      <label><%= check_box_tag 'description', '1', @query.has_column?(:description) %> <%= l(:field_description) %></label>
+    </p>
+    <p class="buttons">
+      <%= submit_tag l(:button_export), :name => nil, :onclick => "hideModal(this);" %>
+      <%= submit_tag l(:button_cancel), :name => nil, :onclick => "hideModal(this);", :type => 'button' %>
+    </p>
   <% end %>
-}
-$(function() {
-  var $p
-<% projects.each do |project| %>
-  $p = $("#project-line-<%=project.id%>")
-  $p.find(".barchart").html(cache[<%=project.id%>].stats)
-  $p.find(".users").html(cache[<%=project.id%>].users)
-  $p.find(".open_issues").html(cache[<%=project.id%>].open_issues)
-  $p.find(".closed_issues").html(cache[<%=project.id%>].closed_issues)
-<% end %>
-  //draw activity sparklines on projects/index page
-  $(".barchart").peity("bar", { colours: ["#aaa"], min: 0, max: 10,
-                                height:20, width: (27*(5+1)-1) })
-})
-</script>
+</div>
+
+<%
+   #redmine doesn't uses updated_at but updated_on, which is not handled by AR#cache_key
+   user_key = "users/#{User.current.id}-#{User.current.updated_on.utc.to_s(:number)}"
+   cache ["project-statistics", user_key, Project.last, Time.now.to_i.div(15)] do %>
+  <script type=text/javascript>
+    <% summary = ProjectSummary.new(projects.map(&:id)) %>
+    cache = {
+    <% projects.each do |project| %>
+    <%= project.id %>: { stats: "<%= summary.activity_statistics[project.id].join(",") %>",
+        users: <%= summary.users_count[project.id].to_i %>,
+      open_issues: <%= summary.issues_open_count[project.id].to_i %>,
+      closed_issues: <%= summary.issues_closed_count[project.id].to_i %> },
+      <% end %>
+    }
+    $(function() {
+      var $p
+      <% projects.each do |project| %>
+      $p = $("#project-line-<%=project.id%>")
+      $p.find(".barchart").html(cache[<%=project.id%>].stats)
+      // $p.find(".users").html(cache[<%=project.id%>].users)
+      // $p.find(".open_issues").html(cache[<%=project.id%>].open_issues)
+      // $p.find(".closed_issues").html(cache[<%=project.id%>].closed_issues)
+      <% end %>
+      //draw activity sparklines on projects/index page
+      $(".barchart").peity("bar", { colours: ["#aaa"], min: 0, max: 10,
+        height:20, width: (27*(5+1)-1) })
+    })
+  </script>
 <% end %>

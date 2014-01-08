@@ -1,4 +1,5 @@
 require 'redmine'
+require_dependency 'redmine_better_crossprojects/projects_controller_patch'
 
 # Little hack for using the 'deface' gem in redmine:
 # - redmine plugins are not railties nor engines, so deface overrides in app/overrides/ are not detected automatically
