@@ -36,11 +36,10 @@
                    @organizations_map[project].each do |o|
                      directions << @directions_map[o]
                    end
-                   directions.uniq!.compact!
+                   directions.uniq!
                    if (directions.size > 1)
                      directions = directions - ["CPII"]
                    end
-
                    column_content = directions.join(', ').html_safe
                  when :name
                    additionnal_class = "project-more-toggle"
