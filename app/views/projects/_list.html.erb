@@ -24,7 +24,7 @@
           </tr>
           <% previous_group = group %>
         <% end %>
-        <tr id="project-<%= project.id %>" class="hascontextmenu <%= cycle('odd', 'even') %> <%= project.css_classes %> <%= level > 0 ? "idnt idnt-#{level}" : nil %>">
+        <tr id="project-line-<%= project.id %>" class="hascontextmenu <%= cycle('odd', 'even') %> <%= project.css_classes %> <%= level > 0 ? "idnt idnt-#{level}" : nil %>">
           <% columns = []
              @query.inline_columns.map do |column|
                additionnal_class = ""
@@ -36,7 +36,12 @@
                    @organizations_map[project].each do |o|
                      directions << @directions_map[o]
                    end
-                   column_content = directions.uniq.compact.join(', ').html_safe
+                   directions.uniq!.compact!
+                   if (directions.size > 1)
+                     directions = directions - ["CPII"]
+                   end
+
+                   column_content = directions.join(', ').html_safe
                  when :name
                    additionnal_class = "project-more-toggle"
                    column_content = content_tag :div, class: "contextual" do

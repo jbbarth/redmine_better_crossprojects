@@ -23,3 +23,4 @@ tr.project.idnt td.name span { background:none; }
 .query_form_options{ margin: 10px 0; }
 table.projects-list td.description {color:#777; font-size:90%; padding:4px 4px 4px 24px; text-align:left; white-space:normal;}
 table.projects-list td.description pre {white-space:normal;}
+fieldset#filters table td { padding: 2px; vertical-align: inherit; }
