@@ -24,7 +24,7 @@
           </tr>
           <% previous_group = group %>
         <% end %>
-        <tr id="project-line-<%= project.id %>" class="hascontextmenu <%= cycle('odd', 'even') %> <%= project.css_classes %> <%= level > 0 ? "idnt idnt-#{level}" : nil %>">
+        <tr id="project-line-<%= project.id %>" class="hascontextmenu <%= cycle('odd', 'even') %> <%= project.css_classes %> <%= url_for(:only_path => true) == url_for(@params) && level > 0 ? "idnt idnt-#{level}" : nil %>"> <!-- indent only if there no query : if basic url = current url -->
           <% columns = []
              @query.inline_columns.map do |column|
                additionnal_class = ""

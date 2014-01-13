@@ -14,6 +14,7 @@ class ProjectsController
   # Lists visible projects
   def index
     retrieve_project_query
+    @params = params
     @project_count_by_group = @query.project_count_by_group
     sort_init(@query.sort_criteria.empty? ? [['lft']] : @query.sort_criteria)
     sort_update(params['sort'].nil? ? ["lft"] : @query.sortable_columns)
@@ -23,6 +24,7 @@ class ProjectsController
     @organizations_map = {}
     @directions_map = {}
     @projects.each do |project|
+      # populate maps
       @query.inline_columns.map do |column|
         if column.name == :organizations
           unless @organizations_map.key?(project)

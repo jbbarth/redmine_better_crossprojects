@@ -40,6 +40,10 @@ class ProjectQuery < Query
     add_available_filter "created_on", :type => :date_past
     add_available_filter "updated_on", :type => :date_past
 
+    # TODO Custom CPII filter
+    directions_values = Organization.select("name, id").where('direction = ?', true).order("name")
+    add_available_filter("organizations", :type => :list, :values => directions_values.collect{|s| [s.name, s.id.to_s] })
+
     add_custom_fields_filters(project_custom_fields)
   end
 
@@ -95,6 +99,24 @@ class ProjectQuery < Query
         raise "Unknown query operator #{operator}"
     end
     sql
+  end
+
+  def sql_for_organizations_field(field, operator, value)
+
+    organization_table = Organization.table_name
+    membership_table = OrganizationMembership.table_name
+
+    "#{Project.table_name}.id #{ operator == '=' ? 'IN' : 'NOT IN' } (SELECT project_id FROM #{membership_table} WHERE organization_id IN
+                                                                          (WITH RECURSIVE rec_tree(parent_id, id, name, direction, depth) AS (
+                                                                          SELECT t.parent_id, t.id, t.name, t.direction, 1
+                                                                          FROM #{organization_table} t
+                                                                          WHERE #{sql_for_field(field, '=', value, 't', 'id')}
+                                                                          UNION ALL
+                                                                          SELECT t.parent_id, t.id, t.name, rt.direction, rt.depth + 1
+                                                                          FROM #{organization_table} t, rec_tree rt
+                                                                          WHERE t.parent_id = rt.id
+                                                                        )
+                                                                        SELECT id FROM rec_tree))"
   end
 
   def available_columns
