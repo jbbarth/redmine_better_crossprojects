@@ -1,3 +1,38 @@
+function toggleProjectRowGroup(el) {
+    var tr = $(el).parents('tr').first();
+    var n = tr.next();
+    tr.toggleClass('open');
+    while (n.length && !n.hasClass('group')) {
+        n.toggle();
+        var hidden = n.is( ":hidden" )
+        n = n.next('tr');
+        if (n.is(".project-more")){
+            if (hidden) {
+                n.hide();
+            }
+            n = n.next('tr')
+        }
+    }
+}
+
+function toggleAllProjectsRowGroups(el) {
+    var tr = $(el).parents('tr').first();
+    if (tr.hasClass('open')) {
+        collapseAllRowGroups(el);
+    } else {
+        var tbody = $(el).parents('tbody').first();
+        tbody.children('tr').each(function(index) {
+            if ($(this).hasClass('group')) {
+                $(this).addClass('open');
+            } else {
+                if (!$(this).is(".project-more")){
+                    $(this).show();
+                }
+            }
+        });
+    }
+}
+
 $(function() {
   //hide/show description of projects
   $("table").on("click", ".project-more-toggle", function(event) {
