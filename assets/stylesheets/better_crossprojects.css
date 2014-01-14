@@ -3,6 +3,8 @@ tr.project.idnt td.name span { background:none; }
 .projects-list td { padding:5px 6px; }
 .projects-list th { vertical-align:top; }
 .projects-list th .filter:focus { outline:none; }
+.projects-list thead tr.headers th {border-bottom: none;}
+.projects-list thead tr.filter th {padding: 0 4px 6px 6px;text-align: left;}
 .projects-list .odd, .projects-list .odd+.even-odd-linked { background-color:#fff; }
 .projects-list .even, .projects-list .even+.even-odd-linked { background-color:#f8f9fa; }
 .projects-list .more { opacity:0; color:#888; font-size:90%; padding:0 5px; cursor:pointer; }

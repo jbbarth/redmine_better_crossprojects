@@ -41,14 +41,21 @@ $(function() {
     }
   })
   //focus on search field on load
-  $("#filter-by-project-name").focus()
+  $("#filter-by-values").focus()
   //filter projects depending on input value
-  $("#filter-by-project-name").on("keyup", function() {
+  $("#filter-by-values").on("keyup", function() {
     if($(this).val()){
-      $(".projects-list > tbody > tr").not("[data-project-name*="+$(this).val()+"]").hide()
-      $(".projects-list > tbody > tr[data-project-name*="+$(this).val()+"]").show()
-    }else{
-      $(".projects-list > tbody > tr[data-project-name]").show()
-    }
+        $(".projects-list > tbody > tr").hide();
+        $(".projects-list > tbody > tr:not(.project-more):MyCaseInsensitiveContains('"+$(this).val()+"')").show();
+      }else{
+        $(".projects-list > tbody > tr:not(.project-more)").show();
+        $(".projects-list > tbody > tr.project-more").hide();
+      }
   })
 })
+
+$.extend($.expr[":"], {
+    "MyCaseInsensitiveContains": function(elem, i, match, array) {
+        return (elem.textContent || elem.innerText || "").toLowerCase().indexOf((match[3] || "").toLowerCase()) >= 0;
+    }
+});
