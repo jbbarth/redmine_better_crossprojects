@@ -3,15 +3,15 @@
   <div class="autoscroll">
     <table class="projects-list list">
       <thead>
+      <tr class="filter">
+        <th colspan="<%= @query.inline_columns.size %>">
+          <input type=text name=filter-by-values id=filter-by-values class=filter placeholder="Rechercher">
+        </th>
+      </tr>
       <tr class="headers">
         <% @query.inline_columns.each do |column| %>
           <%= column_header(column) %>
         <% end %>
-      </tr>
-      <tr class="filter">
-        <th colspan="<%= @query.inline_columns.size %>">
-          <input type=text name=filter-by-values id=filter-by-values class=filter>
-        </th>
       </tr>
       </thead>
       <% previous_group = false %>
