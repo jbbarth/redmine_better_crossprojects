@@ -6,11 +6,14 @@ class ProjectQuery < Query
       QueryColumn.new(:name, :sortable => "#{Project.table_name}.name", :groupable => true),
       QueryColumn.new(:parent, :sortable => "#{Project.table_name}.name", :caption => :field_parent),
       QueryColumn.new(:status, :sortable => "#{Project.table_name}.status", :groupable => true),
+      QueryColumn.new(:is_public, :sortable => "#{Project.table_name}.public", :groupabel => true),
       QueryColumn.new(:created_on, :sortable => "#{Project.table_name}.created_on", :default_order => 'desc'),
       QueryColumn.new(:updated_on, :sortable => "#{Project.table_name}.updated_on", :default_order => 'desc'),
       QueryColumn.new(:organizations, :sortable => false, :default_order => 'asc'),
       QueryColumn.new(:activity, :sortable => false),
-      QueryColumn.new(:description, :inline => false)
+      QueryColumn.new(:description, :inline => false),
+      QueryColumn.new(:role, :sortable => false),
+      QueryColumn.new(:members, :sortable => false)
   ]
 
   def initialize(attributes=nil, *args)
@@ -39,8 +42,9 @@ class ProjectQuery < Query
 
     add_available_filter "created_on", :type => :date_past
     add_available_filter "updated_on", :type => :date_past
+    add_available_filter "is_public", :type => :list, :values => [[l(:general_text_yes), "1"], [l(:general_text_no), "0"]]
 
-    # TODO Custom CPII filter
+    # Custom CPII filter TODO remove specific code + dependence to orga plugin
     directions_values = Organization.select("name, id").where('direction = ?', true).order("name")
     add_available_filter("organizations", :type => :list, :values => directions_values.collect{|s| [s.name, s.id.to_s] })
 
@@ -53,6 +57,7 @@ class ProjectQuery < Query
     available_filters.each do |field, options|
       options[:name] = l("field_name") if field == "id"
       options[:name] = l("label_member") if field == "member_id"
+      # options[:name] = l("label_member_plural") if field == "members"
       json[field] = options.slice(:type, :name, :values).stringify_keys
     end
     json
@@ -133,6 +138,7 @@ class ProjectQuery < Query
       default_columns << ('cf_' + CustomField.select(:id).where(name: "Domaine", type: "ProjectCustomField").first.id.to_s).to_sym
       default_columns << ('cf_' + CustomField.select(:id).where(name: "Type", type: "ProjectCustomField").first.id.to_s).to_sym
       default_columns << :organizations
+      default_columns << :role
       default_columns << :activity
     end
   end

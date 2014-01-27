@@ -20,23 +20,31 @@ class ProjectsController
     sort_update(params['sort'].nil? ? ["lft"] : @query.sortable_columns)
     @query.sort_criteria = sort_criteria.to_a
     @projects = @query.projects(:order => sort_clause)
-    #@organizations = Organization.joins(:memberships).select("organizations.id, project_id").where("project_id IN (?)", @projects.collect(&:id)).collect{|orga| orga.memberships.map{|p| p.attributes.merge(orga.attributes) } }
-    @organizations_map = {}
-    @directions_map = {}
-    @projects.each do |project|
-      # populate maps
-      @query.inline_columns.map do |column|
-        if column.name == :organizations
-          unless @organizations_map.key?(project)
-            @organizations_map[project] = column.value(project)
-          end
-          @organizations_map[project].each do |o|
-            unless @directions_map.key?(o)
-              @directions_map[o] = o.direction_organization.name
-            end
-          end
+
+    # To display the 'members' column, we preload all names
+    if @query.inline_columns.collect {|v| v.name}.include?(:members)
+      users = User.select("id, firstname, lastname").all
+      @users_map = {}
+      users.each do |u|
+        @users_map[u.id] = u.name
+      end
+    end
+
+    if @query.inline_columns.collect {|c| c.name}.include?(:organizations)
+      # @organizations = Organization.joins(:memberships).select("organizations.id, project_id").where("project_id IN (?)", @projects.collect(&:id)).collect{|orga| orga.memberships.map{|p| p.attributes.merge(orga.attributes) } }
+      # @organizations_map = {}
+      @directions_map = {}
+      Organization.all.each do |o|
+        unless @directions_map.key?(o)
+          @directions_map[o] = o.direction_organization.name
         end
       end
+    end
+
+    #pre-load current user's memberships
+    @memberships = User.current.memberships.inject({}) do |memo, membership|
+      memo[membership.project_id] = membership.roles
+      memo
     end
 
     respond_to do |format|
@@ -58,18 +66,22 @@ class ProjectsController
 
     def retrieve_project_query
       if !params[:query_id].blank?
+        puts "retrieve query 01"
         @query = ProjectQuery.find(params[:query_id])
         @query.project = @project
         session[:query] = {:id => @query.id}
         sort_clear
       elsif api_request? || params[:set_filter] || session[:query].nil? || session[:query][:project_id] != (@project ? @project.id : nil)
         # Give it a name, required to be valid
+        puts "retrieve query 02"
         @query = ProjectQuery.new(:name => "_")
         @query.project = @project
         @query.build_from_params(params)
         session[:query] = {:filters => @query.filters, :group_by => @query.group_by, :column_names => @query.column_names}
       else
         # retrieve from session
+        puts "retrieve query 03"
+        puts session[:query].inspect
         @query = ProjectQuery.find_by_id(session[:query][:id]) if session[:query][:id]
         @query ||= ProjectQuery.new(:name => "_", :filters => session[:query][:filters], :group_by => session[:query][:group_by], :column_names => session[:query][:column_names])
       end
