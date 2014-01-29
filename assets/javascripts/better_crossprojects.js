@@ -41,18 +41,33 @@ $(function() {
     }
   })
   //focus on search field on load
-  $("#filter-by-values").focus()
+  $("#filter-by-values").focus();
   //filter projects depending on input value
   $("#filter-by-values").on("keyup", function() {
-    if($(this).val()){
-        $(".projects-list > tbody > tr").hide();
-        $(".projects-list > tbody > tr:not(.project-more):MyCaseInsensitiveContains('"+$(this).val()+"')").show();
+
+      /*
+      $('.highlighted').replaceWith(function () {
+          return this.innerText;
+      });
+      */
+
+      if($(this).val()){
+          $(".projects-list > tbody > tr").hide();
+          $(".projects-list > tbody > tr:not(.project-more):MyCaseInsensitiveContains('"+$(this).val()+"')").show();
+          // highlightOnly($(this).val());
       }else{
-        $(".projects-list > tbody > tr:not(.project-more)").show();
-        $(".projects-list > tbody > tr.project-more").hide();
+          $(".projects-list > tbody > tr:not(.project-more)").show();
+          $(".projects-list > tbody > tr.project-more").hide();
       }
-  })
-})
+  });
+});
+
+function highlightOnly(text) {
+    $(".projects-list > tbody > tr:not(.project-more) > td:not(.name):MyCaseInsensitiveContains('"+text+"')").each(function (i, e) {
+        var $e = $(e);
+        $e.html($(e).html().split(text).join('<span class="highlighted">' + text + '</span>'));
+    })
+}
 
 $.extend($.expr[":"], {
     "MyCaseInsensitiveContains": function(elem, i, match, array) {

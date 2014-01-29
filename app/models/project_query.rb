@@ -128,6 +128,10 @@ class ProjectQuery < Query
     return @available_columns if @available_columns
     @available_columns = self.class.available_columns.dup
     @available_columns += ProjectCustomField.all.collect {|cf| QueryCustomFieldColumn.new(cf) }
+
+    # Custom CPII TODO Remove before merge to master branch
+    @available_columns += Role.where("builtin = 0").order("position asc").all.collect { |role| QueryRoleColumn.new(role) }
+
     @available_columns
   end
 
@@ -179,6 +183,27 @@ class ProjectQuery < Query
       yield project, ancestors.size
       ancestors << project
     end
+  end
+
+end
+
+
+class QueryRoleColumn < QueryColumn
+
+  def initialize(role)
+    self.name = "role_#{role.id}".to_sym
+    self.sortable = false
+    self.groupable = false
+    @inline = true
+    @role = role
+  end
+
+  def caption
+    @role.name
+  end
+
+  def role
+    @role
   end
 
 end

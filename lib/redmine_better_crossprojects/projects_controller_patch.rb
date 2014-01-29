@@ -31,13 +31,32 @@ class ProjectsController
     end
 
     if @query.inline_columns.collect {|c| c.name}.include?(:organizations)
-      # @organizations = Organization.joins(:memberships).select("organizations.id, project_id").where("project_id IN (?)", @projects.collect(&:id)).collect{|orga| orga.memberships.map{|p| p.attributes.merge(orga.attributes) } }
-      # @organizations_map = {}
       @directions_map = {}
       Organization.all.each do |o|
-        unless @directions_map.key?(o)
-          @directions_map[o] = o.direction_organization.name
+        @directions_map[o] = o.direction_organization.name
+      end
+    end
+
+    # If we want to display columns based on "Roles"
+    if @query.inline_columns.collect { |c| c.name}.any? { |val| /role_(\d+)$/ =~ val }
+
+      # retrieve fullname for each organization #TODO improve perf
+      orgas_fullnames = {}
+      Organization.all.each do |o|
+        orgas_fullnames[o.id.to_s] = o.fullname
+      end
+
+      sql = Organization.select("organizations.id, project_id, role_id").joins("LEFT OUTER JOIN organization_memberships ON organization_id = organizations.id").joins("LEFT OUTER JOIN organization_roles ON organization_membership_id = organization_memberships.id").order("project_id, role_id, organizations.id").group("project_id, role_id, organizations.id").to_sql
+      array = ActiveRecord::Base.connection.execute(sql)
+      @orgas_by_roles_and_projects = {}
+      array.each do |record|
+        unless @orgas_by_roles_and_projects[record["project_id"]]
+          @orgas_by_roles_and_projects[record["project_id"]] = {}
         end
+        unless @orgas_by_roles_and_projects[record["project_id"]][record["role_id"]]
+          @orgas_by_roles_and_projects[record["project_id"]][record["role_id"]] = []
+        end
+        @orgas_by_roles_and_projects[record["project_id"]][record["role_id"]] << orgas_fullnames[record["id"]]
       end
     end
 
