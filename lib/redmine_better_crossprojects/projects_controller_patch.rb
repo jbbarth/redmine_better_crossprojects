@@ -88,21 +88,21 @@ class ProjectsController
         puts "retrieve query 01"
         @query = ProjectQuery.find(params[:query_id])
         @query.project = @project
-        session[:query] = {:id => @query.id}
+        session[:project_query] = {:id => @query.id}
         sort_clear
-      elsif api_request? || params[:set_filter] || session[:query].nil? || session[:query][:project_id] != (@project ? @project.id : nil)
+      elsif api_request? || params[:set_filter] || session[:project_query].nil?
         # Give it a name, required to be valid
         puts "retrieve query 02"
         @query = ProjectQuery.new(:name => "_")
         @query.project = @project
         @query.build_from_params(params)
-        session[:query] = {:filters => @query.filters, :group_by => @query.group_by, :column_names => @query.column_names}
+        session[:project_query] = {:filters => @query.filters, :group_by => @query.group_by, :column_names => @query.column_names}
       else
         # retrieve from session
         puts "retrieve query 03"
-        puts session[:query].inspect
-        @query = ProjectQuery.find_by_id(session[:query][:id]) if session[:query][:id]
-        @query ||= ProjectQuery.new(:name => "_", :filters => session[:query][:filters], :group_by => session[:query][:group_by], :column_names => session[:query][:column_names])
+        puts session[:project_query].inspect
+        @query = ProjectQuery.find_by_id(session[:project_query][:id]) if session[:project_query][:id]
+        @query ||= ProjectQuery.new(:name => "_", :filters => session[:project_query][:filters], :group_by => session[:project_query][:group_by], :column_names => session[:project_query][:column_names])
       end
     end
 end
