@@ -5,7 +5,7 @@ Deface::Override.new :virtual_path  => 'projects/index',
   '<%= form_tag({ :controller => "projects", :action => "index" },
              :method => :get, :id => "query_form") do %>
     <%= hidden_field_tag "set_filter", "1" %>
-    <div id="query_form_content" class="hide-when-print">
+    <div id="query_form_content" class="hide-when-print projects_query_form">
 
       <fieldset id="filters" class="collapsible <%= @query && @query.filters && !@query.filters.empty? ? "" : "collapsed" %>">
         <legend onclick="toggleFieldset(this);"><%= l(:label_filters_and_options) %></legend>

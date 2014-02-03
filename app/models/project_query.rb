@@ -47,6 +47,8 @@ class ProjectQuery < Query
     # Custom CPII filter TODO remove specific code + dependence to orga plugin
     directions_values = Organization.select("name, id").where('direction = ?', true).order("name")
     add_available_filter("organizations", :type => :list, :values => directions_values.collect{|s| [s.name, s.id.to_s] })
+    organizations_values = Organization.select("name, id").order("name")
+    add_available_filter("organization", :type => :list, :values => organizations_values.collect{|s| [s.name, s.id.to_s] })
 
     add_custom_fields_filters(project_custom_fields)
   end
