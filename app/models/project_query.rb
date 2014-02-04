@@ -44,11 +44,11 @@ class ProjectQuery < Query
     add_available_filter "updated_on", :type => :date_past
     add_available_filter "is_public", :type => :list, :values => [[l(:general_text_yes), "1"], [l(:general_text_no), "0"]]
 
-    # Custom CPII filter TODO remove specific code + dependence to orga plugin
+    # Custom CPII filter TODO remove specific code + dependence to orga plugin before merging to master
     directions_values = Organization.select("name, id").where('direction = ?', true).order("name")
     add_available_filter("organizations", :type => :list, :values => directions_values.collect{|s| [s.name, s.id.to_s] })
-    organizations_values = Organization.select("name, id").order("name")
-    add_available_filter("organization", :type => :list, :values => organizations_values.collect{|s| [s.name, s.id.to_s] })
+    organizations_values = Organization.all.collect{|s| [s.fullname, s.id.to_s] }.sort_by{|v| v.first}
+    add_available_filter("organization", :type => :list, :values => organizations_values)
 
     add_custom_fields_filters(project_custom_fields)
   end
@@ -124,6 +124,15 @@ class ProjectQuery < Query
                                                                           WHERE t.parent_id = rt.id
                                                                         )
                                                                         SELECT id FROM rec_tree))"
+  end
+
+  def sql_for_organization_field(field, operator, value)
+
+    membership_table = OrganizationMembership.table_name
+
+    "#{Project.table_name}.id #{ operator == '=' ? 'IN' : 'NOT IN' } (SELECT project_id FROM #{membership_table}
+                                                                          WHERE #{sql_for_field(field, '=', value, membership_table, 'organization_id')}
+                                                                        )"
   end
 
   def available_columns
