@@ -96,8 +96,8 @@
 
 <% other_formats_links do |f| %>
   <%= f.link_to 'Atom', :url => params.merge(:key => User.current.rss_key) %>
-  <%= f.link_to 'CSV', :url => params, :onclick => "showModal('csv-export-options', '330px'); return false;" %>
-  <%= f.link_to 'PDF', :url => params %>
+  <%= f.link_to 'CSV', :url => params, :onclick => "showModal('csv-export-options', '330px'); return false;", :class=> "export_links" %>
+  <%= f.link_to 'PDF', :url => params, :class=> "export_links" %>
 <% end %>
 
 <div id="csv-export-options" style="display:none;">

@@ -42,6 +42,7 @@ $(function() {
   })
   //focus on search field on load
   $("#filter-by-values").focus();
+
   //filter projects depending on input value
   $("#filter-by-values").on("keyup", function() {
 
@@ -51,14 +52,31 @@ $(function() {
       });
       */
 
+      var visible_projects = [];
+
       if($(this).val()){
           $(".projects-list > tbody > tr").hide();
-          $(".projects-list > tbody > tr:not(.project-more):MyCaseInsensitiveContains('"+$(this).val()+"')").show();
+          visible_lines = $(".projects-list > tbody > tr:not(.project-more):MyCaseInsensitiveContains('"+$(this).val()+"')");
+          visible_lines.show();
+          for (var i=0; i < visible_lines.length; i++){
+              // Look no need to do list[i] in the body of the loop
+              visible_projects[i] = visible_lines[i].id.replace('project-line-','');
+          }
           // highlightOnly($(this).val());
+
       }else{
           $(".projects-list > tbody > tr:not(.project-more)").show();
           $(".projects-list > tbody > tr.project-more").hide();
       }
+
+      $(".export_links").attr('href', function(i, h) {
+          if(h.indexOf('projects=') != -1){
+              return h.replace( /(visible_projects=).*/ig, '$1'+visible_projects );
+          }else{
+              return h + (h.indexOf('?') != -1 ? '&visible_projects=' +visible_projects : '?visible_projects=' +visible_projects);
+          }
+      });
+
   });
 });
 
