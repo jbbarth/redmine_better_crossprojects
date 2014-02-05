@@ -140,6 +140,10 @@ module Redmine
 
       # Returns a PDF string of a list of projects
       def projects_to_pdf(projects, query)
+
+        #Custom CPII - remove Activity column from PDF
+        remove_column(query, :activity)
+
         pdf = ITCPDF.new(current_language, "L")
         title = query.new_record? ? l(:label_project_plural) : query.name
         pdf.SetTitle(title)
@@ -225,6 +229,17 @@ module Redmine
           pdf.RDMCell(0, row_height, '...')
         end
         pdf.Output
+      end
+
+      def remove_column(query, column_name)
+        deleted_column = nil
+        query.columns.each do |c|
+          if c.is_a?(QueryColumn) && c.name == column_name
+            deleted_column = c
+            break
+          end
+        end
+        query.available_columns.delete(deleted_column) if deleted_column
       end
 
       # fetch row values
