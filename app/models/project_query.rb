@@ -153,7 +153,7 @@ class ProjectQuery < Query
       default_columns << ('cf_' + CustomField.select(:id).where(name: "Domaine", type: "ProjectCustomField").first.id.to_s).to_sym
       default_columns << ('cf_' + CustomField.select(:id).where(name: "Type", type: "ProjectCustomField").first.id.to_s).to_sym
       default_columns << :organizations
-      default_columns << :role
+      # default_columns << :role
       default_columns << :activity
     end
   end
