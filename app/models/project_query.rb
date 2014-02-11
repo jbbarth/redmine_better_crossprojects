@@ -11,6 +11,7 @@ class ProjectQuery < Query
       QueryColumn.new(:updated_on, :sortable => "#{Project.table_name}.updated_on", :default_order => 'desc'),
       QueryColumn.new(:organizations, :sortable => false, :default_order => 'asc'),
       QueryColumn.new(:activity, :sortable => false),
+      QueryColumn.new(:issues, :sortable => false),
       QueryColumn.new(:description, :inline => false),
       QueryColumn.new(:role, :sortable => false),
       QueryColumn.new(:members, :sortable => false)
@@ -154,6 +155,7 @@ class ProjectQuery < Query
       default_columns << ('cf_' + CustomField.select(:id).where(name: "Type", type: "ProjectCustomField").first.id.to_s).to_sym
       default_columns << :organizations
       # default_columns << :role
+      default_columns << :issues
       default_columns << :activity
     end
   end

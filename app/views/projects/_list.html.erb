@@ -31,6 +31,10 @@
              @query.inline_columns.map do |column|
                additionnal_class = ""
                case column.name
+                 when :issues
+                   column_content = content_tag(:span, "", class: "open_issues", title: l(:label_open_issues_plural))
+                   column_content << " / "
+                   column_content << content_tag(:span, "", class: "closed_issues", title: l(:label_closed_issues_plural))
                  when :role
                    if @memberships[project.id].present?
                      column_content = "<div class='am-i-member member'>#{@memberships[project.id].map(&:name).join("<br>").html_safe}</div>"
@@ -127,8 +131,8 @@
     <% projects.each do |project| %>
     <%= project.id %>: { stats: "<%= summary.activity_statistics[project.id].join(",") %>",
         users: <%= summary.users_count[project.id].to_i %>,
-      open_issues: <%= summary.issues_open_count[project.id].to_i %>,
-      closed_issues: <%= summary.issues_closed_count[project.id].to_i %> },
+        open_issues: <%= summary.issues_open_count[project.id].to_i %>,
+        closed_issues: <%= summary.issues_closed_count[project.id].to_i %> },
       <% end %>
     }
     $(function() {
@@ -137,8 +141,8 @@
       $p = $("#project-line-<%=project.id%>")
       $p.find(".barchart").html(cache[<%=project.id%>].stats)
       // $p.find(".users").html(cache[<%=project.id%>].users)
-      // $p.find(".open_issues").html(cache[<%=project.id%>].open_issues)
-      // $p.find(".closed_issues").html(cache[<%=project.id%>].closed_issues)
+      $p.find(".open_issues").html(cache[<%=project.id%>].open_issues)
+      $p.find(".closed_issues").html(cache[<%=project.id%>].closed_issues)
       <% end %>
       //draw activity sparklines on projects/index page
       $(".barchart").peity("bar", { colours: ["#aaa"], min: 0, max: 10,
