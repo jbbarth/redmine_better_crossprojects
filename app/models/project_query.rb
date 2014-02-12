@@ -148,16 +148,13 @@ class ProjectQuery < Query
   end
 
   def default_columns_names
-    @default_columns_names ||= begin
-      default_columns = [ :name
-      ]
-      default_columns << ('cf_' + CustomField.select(:id).where(name: "Domaine", type: "ProjectCustomField").first.id.to_s).to_sym
-      default_columns << ('cf_' + CustomField.select(:id).where(name: "Type", type: "ProjectCustomField").first.id.to_s).to_sym
-      default_columns << :organizations
-      # default_columns << :role
-      default_columns << :issues
-      default_columns << :activity
+    unless @default_columns_names
+      @default_columns_names = []
+      Setting['plugin_redmine_better_crossprojects']['default_columns'].split(",").each do |name|
+        @default_columns_names << name.to_sym
+      end
     end
+    @default_columns_names
   end
 
   # Returns the project count

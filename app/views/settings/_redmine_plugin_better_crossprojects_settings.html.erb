@@ -1,0 +1,32 @@
+<table>
+  <tbody>
+  <tr>
+    <th style="text-align: right;"><%= l("label_default_columns") %> :</th>
+    <td>
+      <%
+         all_available_columns = ProjectQuery.available_columns
+         all_available_columns += ProjectCustomField.all.collect {|cf| QueryCustomFieldColumn.new(cf) }
+         # Custom CPII TODO Remove before merge to master branch
+         all_available_columns += Role.where("builtin = 0").order("position asc").all.collect { |role| QueryRoleColumn.new(role) }
+      %>
+      <input type="hidden" name="settings[default_columns]" id="settings_default_columns" tabindex="-1" value="<%= Setting['plugin_redmine_better_crossprojects']['default_columns'] %>">
+    </td>
+  </tr>
+  </tbody>
+</table>
+<script type="text/javascript">
+  $(function() {
+    var data = [];
+    <% all_available_columns.each do |c| %>
+      data.push(
+          { 'id': '<%= c.name %>',
+            'text': '<%= c.caption %>'
+          }
+      );
+    <% end %>
+    $('#settings_default_columns').select2({
+      tags: data,
+      containerCss: {minWidth: '500px'}
+    });
+  });
+</script>

@@ -17,6 +17,8 @@ Redmine::Plugin.register :redmine_better_crossprojects do
   author_url 'mailto:jeanbaptiste.barth@gmail.com'
   requires_redmine :version_or_higher => '2.0.3'
   version '0.1'
+  settings :default => { 'default_columns' => [] },
+           :partial => 'settings/redmine_plugin_better_crossprojects_settings'
 end
 
 Redmine::MenuManager.map :project_menu do |menu|
