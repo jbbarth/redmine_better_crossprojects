@@ -43,17 +43,6 @@
                    end
                  when :activity
                    column_content = "<span class=barchart></span>"
-                 when :organizations
-                   orgas = column.value(project)
-                   directions = []
-                   orgas.each do |o|
-                     directions << @directions_map[o]
-                   end
-                   directions.uniq!
-                   if (directions.size > 1)
-                     directions = directions - ["CPII"]
-                   end
-                   column_content = directions.join(', ').html_safe
                  when :name
                    additionnal_class = "project-more-toggle"
                    column_content = content_tag :div, class: "contextual" do
@@ -64,10 +53,6 @@
                  when :members
                    members = column.value(project)
                    column_content = members.collect {|m| "#{@users_map[m.user_id]}"}.compact.join(', ').html_safe
-                 when /role_(\d+)$/
-                   if @orgas_by_roles_and_projects[project.id.to_s] && @orgas_by_roles_and_projects[project.id.to_s][$1]
-                     column_content = @orgas_by_roles_and_projects[project.id.to_s][$1].join(', ').html_safe
-                   end
                  else
                    column_content = column_content(column, project)
                end

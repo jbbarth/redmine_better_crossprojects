@@ -1,8 +1,6 @@
 # French strings go here for Rails i18n
 fr:
   label_filters_and_options: Filtres et options
-  field_organizations: Directions impliquées
   field_members: Membres
   quick_search: Recherche rapide
-  field_organization: Organisation
   field_issues: Demandes
