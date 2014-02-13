@@ -19,7 +19,7 @@ class ProjectQuery < Query
 
   def initialize(attributes=nil, *args)
     super attributes
-    self.filters ||= Hash.new
+    self.filters ||= { 'status' => {:operator => "=", :values => [Project::STATUS_ACTIVE.to_s]} }
   end
 
   def initialize_available_filters
@@ -40,6 +40,8 @@ class ProjectQuery < Query
     add_available_filter("member_id",
                          :type => :list, :values => member_values
     ) unless member_values.empty?
+
+    add_available_filter "status", :type => :list, :values => [[l(:project_status_active), Project::STATUS_ACTIVE.to_s], [l(:project_status_closed), Project::STATUS_CLOSED.to_s], [l(:project_status_archived), Project::STATUS_ARCHIVED.to_s]]
 
     add_available_filter "created_on", :type => :date_past
     add_available_filter "updated_on", :type => :date_past
@@ -72,7 +74,7 @@ class ProjectQuery < Query
 
     order_option = [group_by_sort_order, options[:order]].flatten.reject(&:blank?)
 
-    Project.visible.where(options[:conditions]).all(
+    Project.where(options[:conditions]).all(
         :conditions => statement,
         :include => (options[:include] || []).uniq,
         :limit  => options[:limit],
@@ -100,9 +102,11 @@ class ProjectQuery < Query
   def sql_for_status_id_field(field, operator, value)
     case operator
       when "o"
-        sql = "#{queried_table_name}.status = 1"
+        sql = "#{queried_table_name}.status = #{Project::STATUS_ACTIVE}"
       when "c"
-        sql = "#{queried_table_name}.status = 9 "
+        sql = "#{queried_table_name}.status = #{Project::STATUS_CLOSED}"
+      when "a"
+        sql = "#{queried_table_name}.status = #{Project::STATUS_ARCHIVED}"
       else
         raise "Unknown query operator #{operator}"
     end
