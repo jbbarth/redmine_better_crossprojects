@@ -99,20 +99,6 @@ class ProjectQuery < Query
         "GROUP BY #{member_table}.project_id HAVING count(#{member_table}.project_id) = #{value.size}"+ ') '
   end
 
-  def sql_for_status_id_field(field, operator, value)
-    case operator
-      when "o"
-        sql = "#{queried_table_name}.status = #{Project::STATUS_ACTIVE}"
-      when "c"
-        sql = "#{queried_table_name}.status = #{Project::STATUS_CLOSED}"
-      when "a"
-        sql = "#{queried_table_name}.status = #{Project::STATUS_ARCHIVED}"
-      else
-        raise "Unknown query operator #{operator}"
-    end
-    sql
-  end
-
   def sql_for_organizations_field(field, operator, value)
 
     organization_table = Organization.table_name
