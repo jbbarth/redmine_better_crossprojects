@@ -29,13 +29,9 @@ class ProjectQuery < Query
                          :type => :list_optional, :values => project_values
     ) unless project_values.empty?
 
-    principals = Principal.member_of(all_projects)
-    principals.uniq!
-    principals.sort!
-    users = principals.select {|p| p.is_a?(User)}
     member_values = []
     member_values << ["<< #{l(:label_me)} >>", "me"] if User.current.logged?
-    member_values += users.collect{|s| [s.name, s.id.to_s] }
+    member_values += all_users.collect{|s| [s.name, s.id.to_s] }
     add_available_filter("member_id",
                          :type => :list, :values => member_values
     ) unless member_values.empty?
@@ -58,6 +54,13 @@ class ProjectQuery < Query
       json[field] = options.slice(:type, :name, :values).stringify_keys
     end
     json
+  end
+
+  def all_users
+    principals = Principal.member_of(all_projects)
+    principals.uniq!
+    principals.sort!
+    principals.select { |p| p.is_a?(User) }
   end
 
   # Returns the projects

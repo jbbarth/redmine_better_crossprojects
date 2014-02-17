@@ -59,9 +59,8 @@ class ProjectsController
   end
 
   def load_users_map
-    users = User.select("id, firstname, lastname").where("status = 1").all
     @users_map = {}
-    users.each do |u|
+    @query.all_users.each do |u|
       @users_map[u.id] = u.name
     end
   end
