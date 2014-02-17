@@ -2,4 +2,4 @@
 Deface::Override.new :virtual_path  => 'projects/index',
                      :name          => 'add-search-form-to-projects-index',
                      :replace  => '#projects_list_and_exports',
-                     :text => '<%= render :partial => "projects/form" %>'
+                     :partial => "projects/form"

@@ -19,7 +19,8 @@ Redmine::Plugin.register :redmine_better_crossprojects do
   author 'Jean-Baptiste BARTH'
   author_url 'mailto:jeanbaptiste.barth@gmail.com'
   requires_redmine :version_or_higher => '2.0.3'
-  version '0.1'
+  requires_redmine_plugin :redmine_base_select2, :version_or_higher => '0.0.1'
+  version '0.2'
   settings :default => { 'default_columns' => "" },
            :partial => 'settings/redmine_plugin_better_crossprojects_settings'
 end

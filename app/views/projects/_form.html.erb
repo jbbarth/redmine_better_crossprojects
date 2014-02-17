@@ -4,14 +4,14 @@
   <div id="query_form_content" class="hide-when-print projects_query_form">
 
     <%
-       statusFilterOnly = @query && @query.filters && @query.filters.size < 2 && @query.filters.first.first=='status'
-       showFilters = @query && @query.filters && !@query.filters.empty? && !statusFilterOnly
+       status_filter_only = @query && @query.filters && @query.filters.size < 2 && @query.filters.first.try(:first)=='status'
+       show_filters = @query && @query.filters && !@query.filters.empty? && !status_filter_only
     %>
 
-    <fieldset id="filters" class="collapsible <%= showFilters ? "" : "collapsed" %>">
+    <fieldset id="filters" class="collapsible <%= show_filters ? "" : "collapsed" %>">
       <legend onclick="toggleFieldset(this);"><%= l(:label_filters_and_options) %></legend>
 
-      <div style="<%= showFilters ? "" : "display: none;" %>">
+      <div style="<%= show_filters ? "" : "display: none;" %>">
         <%  if @query == nil
               @query = ProjectQuery.new(:name => "_")
               @query.build_from_params(params)

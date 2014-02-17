@@ -1,15 +1,6 @@
 require File.expand_path('../../test_helper', __FILE__)
 
 class ProjectQueryTest < ActiveSupport::TestCase
-  include Redmine::I18n
-
-  fixtures :projects, :enabled_modules, :users, :members,
-           :member_roles, :roles, :trackers, :issue_statuses,
-           :issue_categories, :enumerations, :issues,
-           :watchers, :custom_fields, :custom_values, :versions,
-           :queries,
-           :projects_trackers,
-           :custom_fields_trackers
 
   def test_available_filters_should_be_ordered
     query = ProjectQuery.new

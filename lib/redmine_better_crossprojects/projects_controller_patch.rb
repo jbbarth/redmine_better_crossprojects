@@ -1,9 +1,5 @@
 require_dependency 'projects_controller'
-
-class Project < ActiveRecord::Base
-  def activity
-  end
-end
+require_dependency 'project'
 
 class ProjectsController
 
@@ -23,7 +19,7 @@ class ProjectsController
 
     # To display the 'members' column, we preload all names
     if @query.inline_columns.collect {|v| v.name}.include?(:members)
-      loadUsersMap
+      load_users_map
     end
 
     #pre-load current user's memberships
@@ -43,31 +39,27 @@ class ProjectsController
       }
       format.atom { render_feed(@projects, :title => "#{Setting.app_title}: #{l(:label_project_plural)}") }
       format.csv  {
-        removeHiddenProjects
+        # remove_hidden_projects
         send_data query_to_csv(@projects, @query, params), :type => 'text/csv; header=present', :filename => 'projects.csv'
       }
       format.pdf  {
-        removeHiddenProjects
+        remove_hidden_projects
         send_data projects_to_pdf(@projects, @query), :type => 'application/pdf', :filename => 'projects.pdf'
       }
     end
+  rescue ActiveRecord::RecordNotFound
+    render_404
   end
 
-  def removeHiddenProjects
-    if params[:visible_projects] && !params[:visible_projects].blank?
-      visible_ids = params['visible_projects'].split(",")
-      projects_to_delete = []
-      @projects.each do |p|
-        if !visible_ids.include?(p.id.to_s)
-          projects_to_delete << p
-        end
-      end
-      @projects = @projects - projects_to_delete
+  def remove_hidden_projects
+    if params[:visible_projects].present?
+      visible_ids = params['visible_projects'].split(",").map(&:to_i)
+      @projects.select!{ |p| p.id.in?(visible_ids) }
     end
   end
 
-  def loadUsersMap
-    users = User.select("id, firstname, lastname").all
+  def load_users_map
+    users = User.select("id, firstname, lastname").where("status = 1").all
     @users_map = {}
     users.each do |u|
       @users_map[u.id] = u.name
@@ -245,6 +237,10 @@ module Redmine
   end
 end
 
+class Project
+  def activity; end
+end
+
 module QueriesHelper
 
   def csv_content(column, project)
@@ -259,7 +255,7 @@ module QueriesHelper
         end
       when :members
         unless @users_map
-          loadUsersMap
+          load_users_map
         end
         value = column.value(project).collect {|m| "#{@users_map[m.user_id]}"}.compact.join(', ')
       else
