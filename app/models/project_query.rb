@@ -59,8 +59,7 @@ class ProjectQuery < Query
   def all_users
     timestamp = User.maximum(:updated_on)
     Rails.cache.fetch ['all-users', timestamp.to_i].join('/') do
-      principals = Principal.member_of(all_projects)
-      principals.uniq!
+      principals = Principal.active.uniq.joins(:members).where("#{Member.table_name}.project_id IN (SELECT id FROM #{Project.table_name})")
       principals.sort!
       principals.select { |p| p.is_a?(User) }
     end
