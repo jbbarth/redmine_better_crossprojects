@@ -27,6 +27,17 @@ class ProjectsController
       load_users_map
     end
 
+
+    if @query.inline_columns.collect {|c| c.name}.include?(:organizations)
+      load_directions_map
+    end
+
+    # If we want to display columns based on "Roles"
+    if @query.inline_columns.collect { |c| c.name}.any? { |val| /role_(\d+)$/ =~ val }
+      # retrieve fullname for each organization #TODO improve perf
+      load_organizations_by_role_and_project
+    end
+
     #pre-load current user's memberships
     @memberships = User.current.memberships.inject({}) do |memo, membership|
       memo[membership.project_id] = membership.roles
@@ -67,6 +78,34 @@ class ProjectsController
     @users_map = {}
     @query.all_users.each do |u|
       @users_map[u.id] = u.name
+    end
+  end
+
+
+  def load_organizations_by_role_and_project
+    orgas_fullnames = {}
+    Organization.all.each do |o|
+      orgas_fullnames[o.id.to_s] = o.fullname
+    end
+
+    sql = Organization.select("organizations.id, project_id, role_id").joins("LEFT OUTER JOIN organization_memberships ON organization_id = organizations.id").joins("LEFT OUTER JOIN organization_roles ON organization_membership_id = organization_memberships.id").order("project_id, role_id, organizations.id").group("project_id, role_id, organizations.id").to_sql
+    array = ActiveRecord::Base.connection.execute(sql)
+    @orgas_by_roles_and_projects = {}
+    array.each do |record|
+      unless @orgas_by_roles_and_projects[record["project_id"]]
+        @orgas_by_roles_and_projects[record["project_id"]] = {}
+      end
+      unless @orgas_by_roles_and_projects[record["project_id"]][record["role_id"]]
+        @orgas_by_roles_and_projects[record["project_id"]][record["role_id"]] = []
+      end
+      @orgas_by_roles_and_projects[record["project_id"]][record["role_id"]] << orgas_fullnames[record["id"]]
+    end
+  end
+
+  def load_directions_map
+    @directions_map = {}
+    Organization.all.each do |o|
+      @directions_map[o] = o.direction_organization.name
     end
   end
 
@@ -210,6 +249,20 @@ module Redmine
                 show_value(cv)
               else
                 case column.name
+                  when :organizations
+                    unless @directions_map
+                      load_directions_map
+                    end
+                    orgas = project.send(column.name)
+                    directions = []
+                    orgas.each do |o|
+                      directions << @directions_map[o]
+                    end
+                    directions.uniq!
+                    if (directions.size > 1)
+                      directions = directions - ["CPII"]
+                    end
+                    value = directions.join(', ').html_safe
                   when :role
                     if @memberships[project.id].present?
                       value = @memberships[project.id].map(&:name).join(", ")
@@ -218,6 +271,12 @@ module Redmine
                     end
                   when :members
                     value = project.send(column.name).collect {|m| "#{@users_map[m.user_id]}"}.compact.join(', ')
+                  when /role_(\d+)$/
+                    if @orgas_by_roles_and_projects[project.id.to_s] && @orgas_by_roles_and_projects[project.id.to_s][$1]
+                      value = @orgas_by_roles_and_projects[project.id.to_s][$1].join(', ')
+                    else
+                      value = ""
+                    end
                   else
                     value = project.send(column.name)
                 end
@@ -229,6 +288,8 @@ module Redmine
                   format_date(value)
                 elsif value.is_a?(Time)
                   format_time(value)
+                elsif value.class.name == 'Array'
+                  value.collect{|v| v.direction_organization.name }.uniq.compact.join(', ')
                 else
                   value
                 end
@@ -251,6 +312,20 @@ module QueriesHelper
     case column.name
       when :issues
         value = ""
+      when :organizations
+        unless @directions_map
+          load_directions_map
+        end
+        orgas = column.value(project)
+        directions = []
+        orgas.each do |o|
+          directions << @directions_map[o]
+        end
+        directions.uniq!
+        if (directions.size > 1)
+          directions = directions - ["CPII"]
+        end
+        value = directions.join(', ').html_safe
       when :role
         if @memberships[project.id].present?
           value = @memberships[project.id].map(&:name).join(", ")
@@ -262,6 +337,15 @@ module QueriesHelper
           load_users_map
         end
         value = column.value(project).collect {|m| "#{@users_map[m.user_id]}"}.compact.join(', ')
+      when /role_(\d+)$/
+        unless @orgas_by_roles_and_projects
+          load_organizations_by_role_and_project
+        end
+        if @orgas_by_roles_and_projects[project.id.to_s] && @orgas_by_roles_and_projects[project.id.to_s][$1]
+          value = @orgas_by_roles_and_projects[project.id.to_s][$1].join(', ')
+        else
+          value = ""
+        end
       else
         value = column.value(project)
     end
@@ -280,6 +364,8 @@ module QueriesHelper
         format_date(value)
       when 'Float'
         sprintf("%.2f", value).gsub('.', l(:general_csv_decimal_separator))
+      when 'Organization'
+        value.direction_organization.name
       else
         value.to_s
     end
