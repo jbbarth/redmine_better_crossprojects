@@ -2,7 +2,6 @@ tr.project.idnt td.name span { background:none; }
 .projects-list { width:100%; margin:10px 0; border-collapse:collapse; cursor:default; }
 .projects-list td { padding:5px 6px; }
 .projects-list th { vertical-align:top; }
-.projects-list th .filter:focus { outline:none; }
 .projects-list .odd, .projects-list .odd+.even-odd-linked { background-color:#fff; }
 .projects-list .even, .projects-list .even+.even-odd-linked { background-color:#f8f9fa; }
 .projects-list .more { opacity:0; color:#888; font-size:90%; padding:0 5px; cursor:pointer; }
@@ -19,3 +18,13 @@ tr.project.idnt td.name span { background:none; }
 .projects-list .am-i-member.not-member { color:#aaa; }
 #sidebar h4 { border-bottom:none; margin:8px 10px 4px; }
 #sidebar .subsection { padding-left:10px; }
+
+.query_form_options{ margin: 10px 0; }
+table.projects-list td.description {color:#777; font-size:90%; padding:4px 4px 4px 24px; text-align:left; white-space:normal;}
+table.projects-list td.description pre {white-space:normal;}
+table.projects-list td .highlighted {background-color: #ffff00;}
+fieldset#filters table td { padding: 2px; vertical-align: inherit; }
+.filter {width: 250px;}
+.filter:focus {outline:none;}
+.projects_query_form fieldset.collapsible { border-width: 1px;margin-bottom: 10px;}
+.projects_query_form fieldset.collapsible.collapsed { border-width: 1px 0 0 0;margin-bottom: 0;margin-left: 1px;}

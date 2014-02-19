@@ -1,0 +1,33 @@
+<table>
+  <tbody>
+  <tr>
+    <th style="text-align: right;"><%= l("label_default_columns") %> :</th>
+    <td>
+      <%
+         all_available_columns = ProjectQuery.available_columns
+         all_available_columns += ProjectCustomField.all.collect {|cf| QueryCustomFieldColumn.new(cf) }
+      %>
+      <input name="settings[default_columns]"
+             id="settings_default_columns"
+             size=100
+             value="<%= Setting['plugin_redmine_better_crossprojects']['default_columns'] %>">
+    </td>
+  </tr>
+  </tbody>
+</table>
+<script type="text/javascript">
+  $(function() {
+    var data = [];
+    <% all_available_columns.each do |c| %>
+      data.push(
+          { 'id': '<%= c.name %>',
+            'text': '<%= escape_javascript(raw c.caption) %>'
+          }
+      );
+    <% end %>
+    $('#settings_default_columns').select2({
+      tags: data,
+      containerCss: {minWidth: '500px'}
+    });
+  });
+</script>

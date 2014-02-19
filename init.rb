@@ -1,5 +1,9 @@
 require 'redmine'
 
+ActionDispatch::Callbacks.to_prepare do
+  require_dependency 'redmine_better_crossprojects/projects_controller_patch'
+end
+
 # Little hack for using the 'deface' gem in redmine:
 # - redmine plugins are not railties nor engines, so deface overrides in app/overrides/ are not detected automatically
 # - deface doesn't support direct loading anymore ; it unloads everything at boot so that reload in dev works
@@ -15,7 +19,10 @@ Redmine::Plugin.register :redmine_better_crossprojects do
   author 'Jean-Baptiste BARTH'
   author_url 'mailto:jeanbaptiste.barth@gmail.com'
   requires_redmine :version_or_higher => '2.0.3'
-  version '0.1'
+  requires_redmine_plugin :redmine_base_select2, :version_or_higher => '0.0.1'
+  version '0.2'
+  settings :default => { 'default_columns' => "" },
+           :partial => 'settings/redmine_plugin_better_crossprojects_settings'
 end
 
 Redmine::MenuManager.map :project_menu do |menu|

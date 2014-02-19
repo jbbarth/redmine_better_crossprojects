@@ -11,19 +11,23 @@
 
 <h2><%=l(:label_project_plural)%></h2>
 
-<% if Rails.env.test? %>
-  <!-- then we render the original view so that we don't break core tests -->
-  <!-- not perfect though, I have to find how to activate it optionnally in our own tests -->
-  <div id="projects-index">
-    <%= render_project_hierarchy(@projects)%>
-  </div>
-<% else %>
-  <%= render :partial => 'list', :locals => {:projects => @projects} %>
-<% end %>
+<div id="projects_list_and_exports">
 
-<% other_formats_links do |f| %>
-	<%= f.link_to 'Atom', :url => {:key => User.current.rss_key} %>
-<% end %>
+  <% if Rails.env.test? %>
+    <!-- then we render the original view so that we don't break core tests -->
+    <!-- not perfect though, I have to find how to activate it optionnally in our own tests -->
+    <div id="projects-index">
+      <%= render_project_hierarchy(@projects)%>
+    </div>
+  <% else %>
+    <%= render :partial => 'list', :locals => {:projects => @projects} %>
+  <% end %>
+
+  <% other_formats_links do |f| %>
+    <%= f.link_to 'Atom', :url => {:key => User.current.rss_key} %>
+  <% end %>
+
+</div>
 
 <% content_for :sidebar do -%>
   <%= render 'common/cross_sidebar' %>

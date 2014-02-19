@@ -1,3 +1,38 @@
+function toggleProjectRowGroup(el) {
+    var tr = $(el).parents('tr').first();
+    var n = tr.next();
+    tr.toggleClass('open');
+    while (n.length && !n.hasClass('group')) {
+        n.toggle();
+        var hidden = n.is( ":hidden" )
+        n = n.next('tr');
+        if (n.is(".project-more")){
+            if (hidden) {
+                n.hide();
+            }
+            n = n.next('tr')
+        }
+    }
+}
+
+function toggleAllProjectsRowGroups(el) {
+    var tr = $(el).parents('tr').first();
+    if (tr.hasClass('open')) {
+        collapseAllRowGroups(el);
+    } else {
+        var tbody = $(el).parents('tbody').first();
+        tbody.children('tr').each(function(index) {
+            if ($(this).hasClass('group')) {
+                $(this).addClass('open');
+            } else {
+                if (!$(this).is(".project-more")){
+                    $(this).show();
+                }
+            }
+        });
+    }
+}
+
 $(function() {
   //hide/show description of projects
   $("table").on("click", ".project-more-toggle", function(event) {
@@ -6,14 +41,71 @@ $(function() {
     }
   })
   //focus on search field on load
-  $("#filter-by-project-name").focus()
+  $("#filter-by-values").focus();
+
   //filter projects depending on input value
-  $("#filter-by-project-name").on("keyup", function() {
-    if($(this).val()){
-      $(".projects-list > tbody > tr").not("[data-project-name*="+$(this).val()+"]").hide()
-      $(".projects-list > tbody > tr[data-project-name*="+$(this).val()+"]").show()
-    }else{
-      $(".projects-list > tbody > tr[data-project-name]").show()
+  $("#filter-by-values").on("keyup", function() {
+
+      /*
+      $('.highlighted').replaceWith(function () {
+          return this.innerText;
+      });
+      */
+
+      var visible_projects = [];
+
+      if($(this).val()){
+          $(".projects-list > tbody > tr").hide();
+          visible_lines = $(".projects-list > tbody > tr:not(.project-more):MyCaseInsensitiveContains('"+$(this).val()+"')");
+          visible_lines.show();
+          for (var i=0; i < visible_lines.length; i++){
+              // Look no need to do list[i] in the body of the loop
+              visible_projects[i] = visible_lines[i].id.replace('project-line-','');
+          }
+          // highlightOnly($(this).val());
+
+      }else{
+          $(".projects-list > tbody > tr:not(.project-more)").show();
+          $(".projects-list > tbody > tr.project-more").hide();
+      }
+
+      $(".export_links").attr('href', function(i, h) {
+          if(h.indexOf('projects=') != -1){
+              return h.replace( /(visible_projects=).*/ig, '$1'+visible_projects );
+          }else{
+              return h + (h.indexOf('?') != -1 ? '&visible_projects=' +visible_projects : '?visible_projects=' +visible_projects);
+          }
+      });
+
+  });
+});
+
+function highlightOnly(text) {
+    $(".projects-list > tbody > tr:not(.project-more) > td:not(.name):MyCaseInsensitiveContains('"+text+"')").each(function (i, e) {
+        var $e = $(e);
+        $e.html($(e).html().split(text).join('<span class="highlighted">' + text + '</span>'));
+    })
+}
+
+$.extend($.expr[":"], {
+    "MyCaseInsensitiveContains": function(elem, i, match, array) {
+        return remove_accents((elem.textContent || elem.innerText || "").toLowerCase()).indexOf(remove_accents(match[3] || "").toLowerCase()) >= 0;
     }
-  })
-})
+});
+
+function remove_accents(str) {
+    var accent = [
+        /[\300-\306]/g, /[\340-\346]/g, // A, a
+        /[\310-\313]/g, /[\350-\353]/g, // E, e
+        /[\314-\317]/g, /[\354-\357]/g, // I, i
+        /[\322-\330]/g, /[\362-\370]/g, // O, o
+        /[\331-\334]/g, /[\371-\374]/g, // U, u
+        /[\321]/g, /[\361]/g, // N, n
+        /[\307]/g, /[\347]/g, // C, c
+    ];
+    var noaccent = ['A','a','E','e','I','i','O','o','U','u','N','n','C','c'];
+    for(var i = 0; i < accent.length; i++){
+        str = str.replace(accent[i], noaccent[i]);
+    }
+    return str;
+}
