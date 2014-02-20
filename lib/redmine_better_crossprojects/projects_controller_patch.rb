@@ -18,7 +18,7 @@ class ProjectsController
 
     query_options = {:order => sort_clause}
     if @query.inline_columns.any?{|col|col.is_a?(QueryCustomFieldColumn)}
-      query_options.merge(:include => [:custom_values])
+      query_options.merge!(:include => [:custom_values])
     end
     @projects = @query.projects(query_options)
 
