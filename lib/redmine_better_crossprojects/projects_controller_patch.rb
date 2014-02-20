@@ -90,7 +90,7 @@ class ProjectsController
   end
 
   def load_organizations_by_role_and_project
-    @orgas_by_roles_and_projects = Rails.cache.fetch ['all-organizations', Organization.maximum("updated_at").to_i].join('/') do
+    @orgas_by_roles_and_projects = Rails.cache.fetch ['all-organizations', OrganizationMembership.last.id, OrganizationRole.last.id].join('/') do
       orgas_fullnames = {}
       Organization.all.each do |o|
         orgas_fullnames[o.id.to_s] = o.fullname
@@ -113,10 +113,19 @@ class ProjectsController
   end
 
   def load_directions_map
-    @directions_map = Rails.cache.fetch ['all-directions', Organization.maximum("updated_at").to_i].join('/') do
+    @directions_map = Rails.cache.fetch ['all-directions', OrganizationMembership.last.id, Organization.maximum("updated_at").to_i].join('/') do
       map = {}
-      Organization.all.each do |o|
-        map[o] = o.direction_organization.name
+      @projects.each do |p|
+        orgas = p.send("organizations")
+        directions = []
+        orgas.each do |o|
+          directions << o.direction_organization.name
+        end
+        directions.uniq!
+        if (directions.size > 1)
+          directions = directions - ["CPII"]
+        end
+        map[p.id] = directions.join(', ').html_safe
       end
       map
     end
