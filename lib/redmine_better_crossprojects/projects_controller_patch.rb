@@ -275,16 +275,7 @@ module Redmine
                     unless @directions_map
                       load_directions_map
                     end
-                    orgas = project.send(column.name)
-                    directions = []
-                    orgas.each do |o|
-                      directions << @directions_map[o]
-                    end
-                    directions.uniq!
-                    if (directions.size > 1)
-                      directions = directions - ["CPII"]
-                    end
-                    value = directions.join(', ').html_safe
+                    value = @directions_map[project.id]
                   when :role
                     if @memberships[project.id].present?
                       value = @memberships[project.id].map(&:name).join(", ")
@@ -314,7 +305,7 @@ module Redmine
                 elsif value.is_a?(Time)
                   format_time(value)
                 elsif value.class.name == 'Array'
-                  value.collect{|v| v.direction_organization.name }.uniq.compact.join(', ')
+                  value.size
                 else
                   value
                 end
@@ -341,16 +332,7 @@ module QueriesHelper
         unless @directions_map
           load_directions_map
         end
-        orgas = column.value(project)
-        directions = []
-        orgas.each do |o|
-          directions << @directions_map[o]
-        end
-        directions.uniq!
-        if (directions.size > 1)
-          directions = directions - ["CPII"]
-        end
-        value = directions.join(', ').html_safe
+        value = @directions_map[project.id]
       when :role
         if @memberships[project.id].present?
           value = @memberships[project.id].map(&:name).join(", ")
