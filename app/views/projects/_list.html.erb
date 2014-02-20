@@ -13,6 +13,7 @@
       </thead>
       <% previous_group = false %>
       <tbody>
+      <% membersKey = Member.maximum("created_on") %>
       <% ProjectQuery.unsorted_project_tree(projects) do |project, level| -%>
         <% if @query.grouped? && (group = @query.group_by_column.value(project)) != previous_group %>
           <% reset_cycle %>
@@ -51,8 +52,10 @@
                    column_content << content_tag(:span, (link_to_project(project, {}, :title => project.short_description)), class: "project-name")
                    column_content
                  when :members
-                   members = column.value(project)
-                   column_content = members.collect {|m| "#{@users_map[m.user_id]}"}.compact.join(', ').html_safe
+                   column_content = Rails.cache.fetch("project#{project.id}-members-#{membersKey.to_i}") do
+                     members = column.value(project)
+                     members.collect {|m| "#{@users_map[m.user_id]}"}.compact.join(', ').html_safe
+                   end
                  else
                    column_content = column_content(column, project)
                end
@@ -106,12 +109,9 @@
   <% end %>
 </div>
 
-<%
-   #redmine doesn't uses updated_at but updated_on, which is not handled by AR#cache_key
-   user_key = "users/#{User.current.id}-#{User.current.updated_on.utc.to_s(:number)}"
-   cache ["project-statistics", user_key, Project.last, Time.now.to_i.div(15)] do %>
+<% cache ["project-statistics", Project.maximum(:created_on).to_i, Time.now.midnight.to_i].join("/") do %>
   <script type=text/javascript>
-    <% summary = ProjectSummary.new(projects.map(&:id)) %>
+    <% summary = ProjectSummary.new(Project.select("id").all.map(&:id)) %>
     cache = {
     <% projects.each do |project| %>
     <%= project.id %>: { stats: "<%= summary.activity_statistics[project.id].join(",") %>",
