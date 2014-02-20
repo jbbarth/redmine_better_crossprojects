@@ -15,7 +15,12 @@ class ProjectsController
     sort_init(@query.sort_criteria.empty? ? [['lft']] : @query.sort_criteria)
     sort_update(params['sort'].nil? ? ["lft"] : @query.sortable_columns)
     @query.sort_criteria = sort_criteria.to_a
-    @projects = @query.projects(:order => sort_clause)
+
+    query_options = {:order => sort_clause}
+    if @query.inline_columns.any?{|col|col.is_a?(QueryCustomFieldColumn)}
+      query_options.merge(:include => [:custom_values])
+    end
+    @projects = @query.projects(query_options)
 
     # To display the 'members' column, we preload all names
     if @query.inline_columns.collect {|v| v.name}.include?(:members)
