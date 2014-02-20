@@ -1,105 +1,88 @@
 <input type=text name=filter-by-values id=filter-by-values class=filter placeholder='<%= l('quick_search') %>' >
 
-<%= form_tag({}) do -%>
-  <%= hidden_field_tag 'back_url', url_for(params), :id => nil %>
-  <div class="autoscroll">
-    <table class="projects-list list">
-      <thead>
-        <tr class="headers">
-          <% @query.inline_columns.each do |column| %>
-            <%= column_header(column) %>
-          <% end %>
-        </tr>
-      </thead>
-      <% previous_group = false %>
-      <tbody>
-      <% membersKey = Member.maximum("created_on") %>
-      <% ProjectQuery.unsorted_project_tree(projects) do |project, level| -%>
-        <% if @query.grouped? && (group = @query.group_by_column.value(project)) != previous_group %>
-          <% reset_cycle %>
-          <tr class="group open">
-            <td colspan="<%= @query.inline_columns.size + 2 %>">
-              <span class="expander" onclick="toggleProjectRowGroup(this);">&nbsp;</span>
-              <%= group.blank? ? l(:label_none) : column_content(@query.group_by_column, project) %> <span class="count"><%= @project_count_by_group[group] %></span>
-              <%= link_to_function("#{l(:button_collapse_all)}/#{l(:button_expand_all)}",
-                                   "toggleAllProjectsRowGroups(this)", :class => 'toggle-all') %>
-            </td>
-          </tr>
-          <% previous_group = group %>
+<div class="autoscroll">
+  <table class="projects-list list">
+    <thead>
+      <tr class="headers">
+        <% @query.inline_columns.each do |column| %>
+          <%= column_header(column) %>
         <% end %>
-        <tr id="project-line-<%= project.id %>" class="hascontextmenu <%= cycle('odd', 'even') %> <%= project.css_classes %> <%= url_for(:only_path => true) == url_for(@params) && level > 0 ? "idnt idnt-#{level}" : nil %>"> <!-- indent only if there no query : if basic url = current url -->
-          <% columns = []
-             @query.inline_columns.map do |column|
-               additionnal_class = ""
-               case column.name
-                 when :issues
-                   column_content = content_tag(:span, "", class: "open_issues", title: l(:label_open_issues_plural))
-                   column_content << " / "
-                   column_content << content_tag(:span, "", class: "closed_issues", title: l(:label_closed_issues_plural))
-                 when :role
-                   if @memberships[project.id].present?
-                     column_content = "<div class='am-i-member member'>#{@memberships[project.id].map(&:name).join("<br>").html_safe}</div>"
-                   else
-                     column_content = "<div class='am-i-member not-member'>#{l(:label_role_non_member)}</div>"
-                   end
-                 when :activity
-                   column_content = "<span class=barchart></span>"
-                 when :organizations
-                   orgas = column.value(project)
-                   directions = []
-                   orgas.each do |o|
-                     directions << @directions_map[o]
-                   end
-                   directions.uniq!
-                   if (directions.size > 1)
-                     directions = directions - ["CPII"]
-                   end
-                   column_content = directions.join(', ').html_safe
-                 when :name
-                   additionnal_class = "project-more-toggle"
-                   column_content = content_tag :div, class: "contextual" do
-                     content_tag :span, "[#{l(:label_more).downcase}]", class: "more"
-                   end
-                   column_content << content_tag(:span, (link_to_project(project, {}, :title => project.short_description)), class: "project-name")
-                   column_content
-                 when :members
-                   column_content = Rails.cache.fetch("project#{project.id}-members-#{membersKey.to_i}") do
-                     members = column.value(project)
-                     members.collect {|m| "#{@users_map[m.user_id]}"}.compact.join(', ').html_safe
-                   end
-                 when /role_(\d+)$/
-                   if @orgas_by_roles_and_projects[project.id.to_s] && @orgas_by_roles_and_projects[project.id.to_s][$1]
-                     column_content = @orgas_by_roles_and_projects[project.id.to_s][$1].join(', ').html_safe
-                   end
+      </tr>
+    </thead>
+    <% previous_group = false %>
+    <tbody>
+    <% ProjectQuery.unsorted_project_tree(projects) do |project, level| -%>
+      <% if @query.grouped? && (group = @query.group_by_column.value(project)) != previous_group %>
+        <% reset_cycle %>
+        <tr class="group open">
+          <td colspan="<%= @query.inline_columns.size + 2 %>">
+            <span class="expander" onclick="toggleProjectRowGroup(this);">&nbsp;</span>
+            <%= group.blank? ? l(:label_none) : column_content(@query.group_by_column, project) %> <span class="count"><%= @project_count_by_group[group] %></span>
+            <%= link_to_function("#{l(:button_collapse_all)}/#{l(:button_expand_all)}",
+                                 "toggleAllProjectsRowGroups(this)", :class => 'toggle-all') %>
+          </td>
+        </tr>
+        <% previous_group = group %>
+      <% end %>
+      <tr id="project-line-<%= project.id %>" class="hascontextmenu <%= cycle('odd', 'even') %> <%= project.css_classes %> <%= url_for(:only_path => true) == url_for(@params) && level > 0 ? "idnt idnt-#{level}" : nil %>"> <!-- indent only if there no query : if basic url = current url -->
+        <% columns = []
+           @query.inline_columns.map do |column|
+             additionnal_class = ""
+             case column.name
+               when :issues
+                 column_content = content_tag(:span, "", class: "open_issues", title: l(:label_open_issues_plural))
+                 column_content << " / "
+                 column_content << content_tag(:span, "", class: "closed_issues", title: l(:label_closed_issues_plural))
+               when :role
+                 if @memberships[project.id].present?
+                   column_content = "<div class='am-i-member member'>#{@memberships[project.id].map(&:name).join("<br>").html_safe}</div>"
                  else
-                   column_content = column_content(column, project)
-               end
-               columns << "<td class=\"#{column.css_classes} #{additionnal_class}\">#{column_content}</td>"
+                   column_content = "<div class='am-i-member not-member'>#{l(:label_role_non_member)}</div>"
+                 end
+               when :activity
+                 column_content = "<span class=barchart></span>"
+               when :issues
+                 column_content = "<span></span>"
+               when :users
+                 column_content = "<span></span>"
+               when :name
+                 column_content = content_tag(:span, (link_to_project(project, {}, :title => project.short_description)), class: "project-name")
+               when :members
+                 column_content = @members_by_project[project.id]
+               when /role_(\d+)$/
+                 if @orgas_by_roles_and_projects[project.id.to_s] && @orgas_by_roles_and_projects[project.id.to_s][$1]
+                   column_content = @orgas_by_roles_and_projects[project.id.to_s][$1].join(', ').html_safe
+                 end
+               when :organizations
+                 orgas = column.value(project)
+                 directions = []
+                 orgas.each do |o|
+                   directions << @directions_map[o]
+                 end
+                 directions.uniq!
+                 if (directions.size > 1)
+                   directions = directions - ["CPII"]
+                 end
+                 column_content = directions.join(', ').html_safe
+               else
+                 column_content = column_content(column, project)
              end
-          %>
-          <%= raw columns.join %>
-        </tr>
-        <% if @query.block_columns.empty? %>
-          <tr class="<%= current_cycle %> project-more">
-            <td class="project-summary name" colspan="<%= @query.inline_columns.size + 1 %>">
-              <div class=project-description>
-                <%= textilizable project.description %>
-              </div>
-            </td>
+             columns << "<td class=\"#{column.css_classes} #{additionnal_class}\">#{column_content}</td>"
+           end
+        %>
+        <%= raw columns.join %>
+      </tr>
+      <% @query.block_columns.each do |column|
+        if (text = column_content(column, project)) && text.present? -%>
+          <tr class="<%= current_cycle %>">
+            <td colspan="<%= @query.inline_columns.size + 1 %>" class="<%= column.css_classes %>"><%= text %></td>
           </tr>
-        <% end %>
-        <% @query.block_columns.each do |column|
-          if (text = column_content(column, project)) && text.present? -%>
-            <tr class="<%= current_cycle %>">
-              <td colspan="<%= @query.inline_columns.size + 1 %>" class="<%= column.css_classes %>"><%= text %></td>
-            </tr>
-          <% end -%>
         <% end -%>
       <% end -%>
-      </tbody>
-    </table>
-  </div>
-<% end -%>
+    <% end -%>
+    </tbody>
+  </table>
+</div>
 
 <% other_formats_links do |f| %>
   <%= f.link_to 'Atom', :url => params.merge(:key => User.current.rss_key) %>
@@ -124,9 +107,9 @@
   <% end %>
 </div>
 
-<% cache ["project-statistics", Project.maximum(:created_on).to_i+2, Time.now.midnight.to_i].join("/") do %>
+<% cache ["project-statistics", Project.maximum(:created_on).to_i, Time.now.midnight.to_i].join("/") do %>
   <script type=text/javascript>
-    <% summary = ProjectSummary.new(Project.select("id").all.map(&:id)) %>
+    <% summary = ProjectSummary.new(Project.pluck(:id)) %>
     cache = {
     <% projects.each do |project| %>
     <%= project.id %>: { stats: "<%= summary.activity_statistics[project.id].join(",") %>",
@@ -140,7 +123,7 @@
       <% projects.each do |project| %>
       $p = $("#project-line-<%=project.id%>")
       $p.find(".barchart").html(cache[<%=project.id%>].stats)
-      // $p.find(".users").html(cache[<%=project.id%>].users)
+      $p.find(".users").html(cache[<%=project.id%>].users)
       $p.find(".open_issues").html(cache[<%=project.id%>].open_issues)
       $p.find(".closed_issues").html(cache[<%=project.id%>].closed_issues)
       <% end %>

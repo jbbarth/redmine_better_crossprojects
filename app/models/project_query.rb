@@ -14,7 +14,8 @@ class ProjectQuery < Query
       QueryColumn.new(:issues, :sortable => false),
       QueryColumn.new(:description, :inline => false),
       QueryColumn.new(:role, :sortable => false),
-      QueryColumn.new(:members, :sortable => false)
+      QueryColumn.new(:members, :sortable => false),
+      QueryColumn.new(:users, :sortable => false)
   ]
 
   def initialize(attributes=nil, *args)
