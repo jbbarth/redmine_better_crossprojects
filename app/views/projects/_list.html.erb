@@ -109,9 +109,9 @@
   <% end %>
 </div>
 
-<% cache ["project-statistics", Project.maximum(:created_on).to_i+2, Time.now.midnight.to_i].join("/") do %>
+<% cache ["project-statistics", Project.maximum(:created_on).to_i, Time.now.midnight.to_i].join("/") do %>
   <script type=text/javascript>
-    <% summary = ProjectSummary.new(Project.select("id").all.map(&:id)) %>
+    <% summary = ProjectSummary.new(Project.pluck(:id)) %>
     cache = {
     <% projects.each do |project| %>
     <%= project.id %>: { stats: "<%= summary.activity_statistics[project.id].join(",") %>",
