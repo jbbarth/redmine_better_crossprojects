@@ -27,7 +27,6 @@ class ProjectsController
       load_users_map
     end
 
-
     if @query.inline_columns.collect {|c| c.name}.include?(:organizations)
       load_directions_map
     end
@@ -81,31 +80,36 @@ class ProjectsController
     end
   end
 
-
   def load_organizations_by_role_and_project
-    orgas_fullnames = {}
-    Organization.all.each do |o|
-      orgas_fullnames[o.id.to_s] = o.fullname
-    end
+    @orgas_by_roles_and_projects = Rails.cache.fetch ['all-organizations', Organization.maximum("updated_at").to_i].join('/') do
+      orgas_fullnames = {}
+      Organization.all.each do |o|
+        orgas_fullnames[o.id.to_s] = o.fullname
+      end
 
-    sql = Organization.select("organizations.id, project_id, role_id").joins("LEFT OUTER JOIN organization_memberships ON organization_id = organizations.id").joins("LEFT OUTER JOIN organization_roles ON organization_membership_id = organization_memberships.id").order("project_id, role_id, organizations.id").group("project_id, role_id, organizations.id").to_sql
-    array = ActiveRecord::Base.connection.execute(sql)
-    @orgas_by_roles_and_projects = {}
-    array.each do |record|
-      unless @orgas_by_roles_and_projects[record["project_id"]]
-        @orgas_by_roles_and_projects[record["project_id"]] = {}
+      sql = Organization.select("organizations.id, project_id, role_id").joins("LEFT OUTER JOIN organization_memberships ON organization_id = organizations.id").joins("LEFT OUTER JOIN organization_roles ON organization_membership_id = organization_memberships.id").order("project_id, role_id, organizations.id").group("project_id, role_id, organizations.id").to_sql
+      array = ActiveRecord::Base.connection.execute(sql)
+      map = {}
+      array.each do |record|
+        unless map[record["project_id"]]
+          map[record["project_id"]] = {}
+        end
+        unless map[record["project_id"]][record["role_id"]]
+          map[record["project_id"]][record["role_id"]] = []
+        end
+        map[record["project_id"]][record["role_id"]] << orgas_fullnames[record["id"]]
       end
-      unless @orgas_by_roles_and_projects[record["project_id"]][record["role_id"]]
-        @orgas_by_roles_and_projects[record["project_id"]][record["role_id"]] = []
-      end
-      @orgas_by_roles_and_projects[record["project_id"]][record["role_id"]] << orgas_fullnames[record["id"]]
+      map
     end
   end
 
   def load_directions_map
-    @directions_map = {}
-    Organization.all.each do |o|
-      @directions_map[o] = o.direction_organization.name
+    @directions_map = Rails.cache.fetch ['all-directions', Organization.maximum("updated_at").to_i].join('/') do
+      map = {}
+      Organization.all.each do |o|
+        map[o] = o.direction_organization.name
+      end
+      map
     end
   end
 
