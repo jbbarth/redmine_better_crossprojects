@@ -226,7 +226,10 @@ module Redmine
                       value = l(:label_role_non_member)
                     end
                   when :members
-                    value = project.send(column.name).collect {|m| "#{@users_map[m.user_id]}"}.compact.join(', ')
+                    unless @members_by_project
+                      load_members_map
+                    end
+                    value = @members_by_project[project.id]
                   else
                     value = project.send(column.name)
                 end
