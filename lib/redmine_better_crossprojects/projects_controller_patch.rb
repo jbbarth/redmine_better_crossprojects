@@ -24,7 +24,7 @@ class ProjectsController
 
     # To display the 'members' column, we preload all names
     if @query.inline_columns.collect {|v| v.name}.include?(:members)
-      load_users_map
+      load_members_map
     end
 
     #pre-load current user's memberships
@@ -63,10 +63,19 @@ class ProjectsController
     end
   end
 
-  def load_users_map
-    @users_map = {}
-    @query.all_users.each do |u|
-      @users_map[u.id] = u.name
+  def load_members_map
+    membersKey = Member.maximum("created_on").to_i
+    @members_by_project = Rails.cache.fetch("projects-members-#{membersKey}") do
+      user_names_map = {}
+      @query.all_users.each do |u|
+        user_names_map[u.id] = u.name
+      end
+      members_by_project_map = {}
+      @projects.each do |p|
+        members = p.send("members")
+        members_by_project_map[p.id] = members.collect {|m| "#{user_names_map[m.user_id]}"}.compact.join(', ').html_safe
+      end
+      members_by_project_map
     end
   end
 
@@ -258,10 +267,10 @@ module QueriesHelper
           value = l(:label_role_non_member)
         end
       when :members
-        unless @users_map
-          load_users_map
+        unless @members_by_project
+          load_members_map
         end
-        value = column.value(project).collect {|m| "#{@users_map[m.user_id]}"}.compact.join(', ')
+        value = @members_by_project[project.id]
       else
         value = column.value(project)
     end
