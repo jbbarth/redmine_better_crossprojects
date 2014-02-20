@@ -4,11 +4,7 @@ tr.project.idnt td.name span { background:none; }
 .projects-list th { vertical-align:top; }
 .projects-list .odd, .projects-list .odd+.even-odd-linked { background-color:#fff; }
 .projects-list .even, .projects-list .even+.even-odd-linked { background-color:#f8f9fa; }
-.projects-list .more { opacity:0; color:#888; font-size:90%; padding:0 5px; cursor:pointer; }
-.projects-list .contextual { margin-top:0; }
-.projects-list .project-more { display:none; }
 .projects-list .project-description { color:#666; margin-left:16px; margin-bottom:10px; font-size:90%; }
-.projects-list tr:hover .more { opacity:1; }
 .projects-list .membership, .projects-list .issues, .projects-list .users { text-align:center; font-size:90%; color:#888; width:100px; }
 .projects-list .activity { width:160px; padding:0 5px !important; }
 .projects-list .activity .barchart { display:none; }
@@ -22,7 +18,6 @@ tr.project.idnt td.name span { background:none; }
 .query_form_options{ margin: 10px 0; }
 table.projects-list td.description {color:#777; font-size:90%; padding:4px 4px 4px 24px; text-align:left; white-space:normal;}
 table.projects-list td.description pre {white-space:normal;}
-table.projects-list td .highlighted {background-color: #ffff00;}
 fieldset#filters table td { padding: 2px; vertical-align: inherit; }
 .filter {width: 250px;}
 .filter:focus {outline:none;}

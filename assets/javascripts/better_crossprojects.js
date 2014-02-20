@@ -6,12 +6,6 @@ function toggleProjectRowGroup(el) {
         n.toggle();
         var hidden = n.is( ":hidden" )
         n = n.next('tr');
-        if (n.is(".project-more")){
-            if (hidden) {
-                n.hide();
-            }
-            n = n.next('tr')
-        }
     }
 }
 
@@ -34,39 +28,24 @@ function toggleAllProjectsRowGroups(el) {
 }
 
 $(function() {
-  //hide/show description of projects
-  $("table").on("click", ".project-more-toggle", function(event) {
-    if (event.target.tagName != "A") {
-      $(this).closest("tr").next().toggle()
-    }
-  })
   //focus on search field on load
   $("#filter-by-values").focus();
 
   //filter projects depending on input value
   $("#filter-by-values").on("keyup", function() {
 
-      /*
-      $('.highlighted').replaceWith(function () {
-          return this.innerText;
-      });
-      */
-
       var visible_projects = [];
 
       if($(this).val()){
           $(".projects-list > tbody > tr").hide();
-          visible_lines = $(".projects-list > tbody > tr:not(.project-more):MyCaseInsensitiveContains('"+$(this).val()+"')");
+          visible_lines = $(".projects-list > tbody > tr:MyCaseInsensitiveContains('"+$(this).val()+"')");
           visible_lines.show();
           for (var i=0; i < visible_lines.length; i++){
               // Look no need to do list[i] in the body of the loop
               visible_projects[i] = visible_lines[i].id.replace('project-line-','');
           }
-          // highlightOnly($(this).val());
-
       }else{
-          $(".projects-list > tbody > tr:not(.project-more)").show();
-          $(".projects-list > tbody > tr.project-more").hide();
+          $(".projects-list > tbody > tr").show();
       }
 
       $(".export_links").attr('href', function(i, h) {
@@ -79,13 +58,6 @@ $(function() {
 
   });
 });
-
-function highlightOnly(text) {
-    $(".projects-list > tbody > tr:not(.project-more) > td:not(.name):MyCaseInsensitiveContains('"+text+"')").each(function (i, e) {
-        var $e = $(e);
-        $e.html($(e).html().split(text).join('<span class="highlighted">' + text + '</span>'));
-    })
-}
 
 $.extend($.expr[":"], {
     "MyCaseInsensitiveContains": function(elem, i, match, array) {

@@ -45,12 +45,7 @@
                  when :activity
                    column_content = "<span class=barchart></span>"
                  when :name
-                   additionnal_class = "project-more-toggle"
-                   column_content = content_tag :div, class: "contextual" do
-                     content_tag :span, "[#{l(:label_more).downcase}]", class: "more"
-                   end
-                   column_content << content_tag(:span, (link_to_project(project, {}, :title => project.short_description)), class: "project-name")
-                   column_content
+                   column_content = content_tag(:span, (link_to_project(project, {}, :title => project.short_description)), class: "project-name")
                  when :members
                    column_content = Rails.cache.fetch("project#{project.id}-members-#{membersKey.to_i}") do
                      members = column.value(project)
@@ -64,15 +59,6 @@
           %>
           <%= raw columns.join %>
         </tr>
-        <% if @query.block_columns.empty? %>
-          <tr class="<%= current_cycle %> project-more">
-            <td class="project-summary name" colspan="<%= @query.inline_columns.size + 1 %>">
-              <div class=project-description>
-                <%= textilizable project.description %>
-              </div>
-            </td>
-          </tr>
-        <% end %>
         <% @query.block_columns.each do |column|
           if (text = column_content(column, project)) && text.present? -%>
             <tr class="<%= current_cycle %>">
