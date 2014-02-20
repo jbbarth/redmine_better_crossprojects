@@ -230,6 +230,8 @@ module Redmine
                       load_members_map
                     end
                     value = @members_by_project[project.id]
+                  when :users
+                    value = project.send(column.name).size
                   else
                     value = project.send(column.name)
                 end
