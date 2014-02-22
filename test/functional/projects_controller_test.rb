@@ -2,6 +2,16 @@ require File.expand_path('../../test_helper', __FILE__)
 
 class ProjectsControllerTest < ActionController::TestCase
 
+  # NB: setting a specific fixture_path here prevents us from declaring
+  # explicitly all needed fixtures because Rails only have one fixture
+  # directory. As we don't declare all fixtures explicitly, 1/ we cannot
+  # run this test file alone and 2/ it may break depending on which other
+  # tests ran before.
+  #
+  # Here we VOLUNTARILY declare a local fixture path for this class so that
+  # we use our own queries.yml file, with some ProjectQuery fixtures.
+  #
+  # We may find an other way of doing things later...
   self.fixture_path = File.dirname(__FILE__) + "/../fixtures/"
   fixtures :queries
 
