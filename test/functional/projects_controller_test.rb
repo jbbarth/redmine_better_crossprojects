@@ -1,4 +1,5 @@
 require File.expand_path('../../test_helper', __FILE__)
+require 'redmine_better_crossprojects/projects_controller_patch'
 
 class ProjectsControllerTest < ActionController::TestCase
 

@@ -1,7 +1,7 @@
 require 'redmine'
 
 ActionDispatch::Callbacks.to_prepare do
-  require_dependency 'redmine_better_crossprojects/projects_controller_patch'
+  require_dependency 'redmine_better_crossprojects/projects_controller_patch' unless Rails.env.test?
 end
 
 # Little hack for using the 'deface' gem in redmine:
