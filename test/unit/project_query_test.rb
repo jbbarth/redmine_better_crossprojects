@@ -1,6 +1,8 @@
 require File.expand_path('../../test_helper', __FILE__)
 
 class ProjectQueryTest < ActiveSupport::TestCase
+  fixtures :projects, :users, :members
+
   def setup
     User.current = nil
   end
