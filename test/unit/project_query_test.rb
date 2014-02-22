@@ -1,6 +1,9 @@
 require File.expand_path('../../test_helper', __FILE__)
 
 class ProjectQueryTest < ActiveSupport::TestCase
+  def setup
+    User.current = nil
+  end
 
   def test_available_filters_should_be_ordered
     query = ProjectQuery.new
@@ -82,7 +85,6 @@ class ProjectQueryTest < ActiveSupport::TestCase
     result = find_projects_with_query(query)
     assert_not_nil result
     assert !result.empty?
-    User.current = nil
   end
 
 end
