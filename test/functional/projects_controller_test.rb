@@ -3,21 +3,41 @@ require 'redmine_better_crossprojects/projects_controller_patch'
 
 class ProjectsControllerTest < ActionController::TestCase
 
-  # NB: setting a specific fixture_path here prevents us from declaring
-  # explicitly all needed fixtures because Rails only have one fixture
-  # directory. As we don't declare all fixtures explicitly, 1/ we cannot
-  # run this test file alone and 2/ it may break depending on which other
-  # tests ran before.
+  # In this test we don't use fixtures voluntarily for ProjectQuery's
   #
-  # Here we VOLUNTARILY declare a local fixture path for this class so that
-  # we use our own queries.yml file, with some ProjectQuery fixtures.
+  # If we want to use fixtures, we'd have to set a specific fixture_path,
+  # which would prevent us from declaring explicitly all needed fixtures
+  # because Rails only have one fixture directory. If we don't declare all
+  # fixtures explicitly, 1/ we cannot run this test file alone and 2/ it may 
+  # break depending on which other tests ran before.
   #
-  # We may find an other way of doing things later...
-  self.fixture_path = File.dirname(__FILE__) + "/../fixtures/"
-  fixtures :queries
+  # Actually it DOES break when running with all other plugins when other
+  # queries fixtures have been loaded for other plugins. And if we completely
+  # replace queries in core, it breaks core's tests.
+  #
+  # Hence the best solution for now is to generate needed fixtures here in the
+  # setup phase.
 
   def setup
+    # reset current user
     User.current = nil
+    # create some useful ProjectQuery's
+    @query_1 = ProjectQuery.create!(
+      :name => "Query1", :user_id => 2,
+      :filters => { :status => { :values => ["1"], :operator => "!" } },
+      :column_names => [ "name", "status" ]
+    )
+    @query_2 = ProjectQuery.create!(
+      :name => "Query2", :user_id => 1,
+      :filters => { :status => { :values => ["1"], :operator => "=" } },
+      :column_names => [], :sort_criteria => [ "name", "desc" ],
+      :group_by => "status"
+    )
+  end
+
+  def teardown
+    # delete project queries so they don't interfer with other tests
+    ProjectQuery.destroy_all
   end
 
   def test_index_with_default_filter
@@ -59,7 +79,7 @@ class ProjectsControllerTest < ActionController::TestCase
   end
 
   def test_index_with_query
-    get :index, :query_id => 1
+    get :index, :query_id => @query_1.id
     assert_response :success
     assert_template 'index'
     assert_not_nil assigns(:projects)
@@ -67,7 +87,7 @@ class ProjectsControllerTest < ActionController::TestCase
   end
 
   def test_index_with_query_grouped
-    get :index, :query_id => 2
+    get :index, :query_id => @query_2.id
     assert_response :success
     assert_template 'index'
     assert_not_nil assigns(:projects)
@@ -75,10 +95,10 @@ class ProjectsControllerTest < ActionController::TestCase
   end
 
   def test_index_with_query_id_should_set_session_query
-    get :index, :query_id => 1
+    get :index, :query_id => @query_1.id
     assert_response :success
     assert_kind_of Hash, session[:project_query]
-    assert_equal 1, session[:project_query][:id]
+    assert_equal @query_1.id, session[:project_query][:id]
   end
 
   def test_index_with_invalid_query_id_should_respond_404
@@ -106,7 +126,7 @@ class ProjectsControllerTest < ActionController::TestCase
   end
 
   def test_index_pdf_with_query_grouped_by_status
-    get :index, :query_id => 2, :format => 'pdf'
+    get :index, :query_id => @query_2.id, :format => 'pdf'
     assert_response :success
     assert_not_nil assigns(:projects)
     assert_not_nil assigns(:project_count_by_group)
