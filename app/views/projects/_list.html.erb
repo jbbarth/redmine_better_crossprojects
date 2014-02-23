@@ -54,7 +54,7 @@
                    column_content = @orgas_by_roles_and_projects[project.id.to_s][$1].join(', ').html_safe
                  end
                when :organizations
-                 column_content = @directions_map[project.id]
+                 column_content = directions_map[project.id]
                else
                  column_content = column_content(column, project)
              end

@@ -27,10 +27,6 @@ class ProjectsController
       load_members_map
     end
 
-    if @query.inline_columns.collect {|c| c.name}.include?(:organizations)
-      load_directions_map
-    end
-
     # If we want to display columns based on "Roles"
     if @query.inline_columns.collect { |c| c.name}.any? { |val| /role_(\d+)$/ =~ val }
       # retrieve fullname for each organization #TODO improve perf
@@ -112,8 +108,8 @@ class ProjectsController
     end
   end
 
-  def load_directions_map
-    @directions_map = Rails.cache.fetch ['all-directions', OrganizationMembership.last.id, Organization.maximum("updated_at").to_i].join('/') do
+  def directions_map
+    @directions_map ||= Rails.cache.fetch ['all-directions', OrganizationMembership.last.id, Organization.maximum("updated_at").to_i].join('/') do
       map = {}
       @projects.each do |p|
         orgas = p.send("organizations")
@@ -130,6 +126,7 @@ class ProjectsController
       map
     end
   end
+  helper_method :directions_map
 
   private
 
@@ -272,10 +269,7 @@ module Redmine
               else
                 case column.name
                   when :organizations
-                    unless @directions_map
-                      load_directions_map
-                    end
-                    value = @directions_map[project.id]
+                    value = directions_map[project.id]
                   when :role
                     if @memberships[project.id].present?
                       value = @memberships[project.id].map(&:name).join(", ")
@@ -331,10 +325,7 @@ module QueriesHelper
       when :issues
         value = ""
       when :organizations
-        unless @directions_map
-          load_directions_map
-        end
-        value = @directions_map[project.id]
+        value = directions_map[project.id]
       when :role
         if @memberships[project.id].present?
           value = @memberships[project.id].map(&:name).join(", ")
