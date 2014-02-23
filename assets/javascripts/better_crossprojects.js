@@ -1,3 +1,6 @@
+//cached here for performance reasons
+STRIP_HTML_REGEX = new RegExp("<[^>]*>", "g")
+
 function toggleProjectRowGroup(el) {
     var tr = $(el).parents('tr').first();
     var n = tr.next();
@@ -61,7 +64,23 @@ $(function() {
 
 $.extend($.expr[":"], {
     "MyCaseInsensitiveContains": function(elem, i, match, array) {
-        return remove_accents((elem.textContent || elem.innerText || "").toLowerCase()).indexOf(remove_accents(match[3] || "").toLowerCase()) >= 0;
+        // We lower case the pattern (match[3]) and the text (elem.textContent
+        // or elem.innerText) and remove accents from both
+        //
+        // The first condition searchs if pattern is in text
+        //
+        // BUT this is not enough, as textContent and co will remove html tags
+        // and produce unexpected matches. For instance if the DOM contains
+        // "<div>A<div>B</div></div>", its textContent will be "AB" thus it
+        // will match "AB".
+        //
+        // So the second condition strips HTML from elem.innerHTML and performs
+        // the verification again.
+        //
+        // We don't apply second conditions immediately because it would
+        // probably have dramatic performance drawbacks to blindly use regex
+        // substitutions hundred times per page.
+        return (remove_accents((elem.textContent || elem.innerText || "").toLowerCase()).indexOf(remove_accents(match[3] || "").toLowerCase()) >= 0) && (remove_accents((elem.innerHTML.replace(STRIP_HTML_REGEX, " ")).toLowerCase()).indexOf(remove_accents(match[3] || "").toLowerCase()) >= 0);
     }
 });
 
