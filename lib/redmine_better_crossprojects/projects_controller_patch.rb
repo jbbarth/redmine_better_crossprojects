@@ -22,12 +22,6 @@ class ProjectsController
     end
     @projects = @query.projects(query_options)
 
-    # If we want to display columns based on "Roles"
-    if @query.inline_columns.collect { |c| c.name}.any? { |val| /role_(\d+)$/ =~ val }
-      # retrieve fullname for each organization #TODO improve perf
-      load_organizations_by_role_and_project
-    end
-
     #pre-load current user's memberships
     @memberships = User.current.memberships.inject({}) do |memo, membership|
       memo[membership.project_id] = membership.roles
@@ -80,8 +74,8 @@ class ProjectsController
   end
   helper_method :members_map
 
-  def load_organizations_by_role_and_project
-    @orgas_by_roles_and_projects = Rails.cache.fetch ['all-organizations', OrganizationMembership.last.id, OrganizationRole.last.id].join('/') do
+  def organizations_map
+    @organizations_map ||= Rails.cache.fetch ['all-organizations', OrganizationMembership.last.id, OrganizationRole.last.id].join('/') do
       orgas_fullnames = {}
       Organization.all.each do |o|
         orgas_fullnames[o.id.to_s] = o.fullname
@@ -102,6 +96,7 @@ class ProjectsController
       map
     end
   end
+  helper_method :organizations_map
 
   def directions_map
     @directions_map ||= Rails.cache.fetch ['all-directions', OrganizationMembership.last.id, Organization.maximum("updated_at").to_i].join('/') do
@@ -276,8 +271,8 @@ module Redmine
                   when :users
                     value = project.send(column.name).size
                   when /role_(\d+)$/
-                    if @orgas_by_roles_and_projects[project.id.to_s] && @orgas_by_roles_and_projects[project.id.to_s][$1]
-                      value = @orgas_by_roles_and_projects[project.id.to_s][$1].join(', ')
+                    if organizations_map[project.id.to_s] && organizations_map[project.id.to_s][$1]
+                      value = organizations_map[project.id.to_s][$1].join(', ')
                     else
                       value = ""
                     end
@@ -327,11 +322,8 @@ module QueriesHelper
       when :members
         value = members_map[project.id]
       when /role_(\d+)$/
-        unless @orgas_by_roles_and_projects
-          load_organizations_by_role_and_project
-        end
-        if @orgas_by_roles_and_projects[project.id.to_s] && @orgas_by_roles_and_projects[project.id.to_s][$1]
-          value = @orgas_by_roles_and_projects[project.id.to_s][$1].join(', ')
+        if organizations_map[project.id.to_s] && organizations_map[project.id.to_s][$1]
+          value = organizations_map[project.id.to_s][$1].join(', ')
         else
           value = ""
         end

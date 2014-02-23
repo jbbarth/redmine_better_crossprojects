@@ -50,8 +50,8 @@
                when :members
                  column_content = members_map[project.id]
                when /role_(\d+)$/
-                 if @orgas_by_roles_and_projects[project.id.to_s] && @orgas_by_roles_and_projects[project.id.to_s][$1]
-                   column_content = @orgas_by_roles_and_projects[project.id.to_s][$1].join(', ').html_safe
+                 if organizations_map[project.id.to_s] && organizations_map[project.id.to_s][$1]
+                   column_content = organizations_map[project.id.to_s][$1].join(', ').html_safe
                  end
                when :organizations
                  column_content = directions_map[project.id]
