@@ -22,11 +22,6 @@ class ProjectsController
     end
     @projects = @query.projects(query_options)
 
-    # To display the 'members' column, we preload all names
-    if @query.inline_columns.collect {|v| v.name}.include?(:members)
-      load_members_map
-    end
-
     # If we want to display columns based on "Roles"
     if @query.inline_columns.collect { |c| c.name}.any? { |val| /role_(\d+)$/ =~ val }
       # retrieve fullname for each organization #TODO improve perf
@@ -69,9 +64,8 @@ class ProjectsController
     end
   end
 
-  def load_members_map
-    membersKey = Member.maximum("created_on").to_i
-    @members_by_project = Rails.cache.fetch("projects-members-#{membersKey}") do
+  def members_map
+    @members_map ||= Rails.cache.fetch("projects-members-#{Member.maximum("created_on").to_i}") do
       user_names_map = {}
       @query.all_users.each do |u|
         user_names_map[u.id] = u.name
@@ -84,6 +78,7 @@ class ProjectsController
       members_by_project_map
     end
   end
+  helper_method :members_map
 
   def load_organizations_by_role_and_project
     @orgas_by_roles_and_projects = Rails.cache.fetch ['all-organizations', OrganizationMembership.last.id, OrganizationRole.last.id].join('/') do
@@ -277,10 +272,7 @@ module Redmine
                       value = l(:label_role_non_member)
                     end
                   when :members
-                    unless @members_by_project
-                      load_members_map
-                    end
-                    value = @members_by_project[project.id]
+                    value = members_map[project.id]
                   when :users
                     value = project.send(column.name).size
                   when /role_(\d+)$/
@@ -333,10 +325,7 @@ module QueriesHelper
           value = l(:label_role_non_member)
         end
       when :members
-        unless @members_by_project
-          load_members_map
-        end
-        value = @members_by_project[project.id]
+        value = members_map[project.id]
       when /role_(\d+)$/
         unless @orgas_by_roles_and_projects
           load_organizations_by_role_and_project
