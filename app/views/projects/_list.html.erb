@@ -49,6 +49,12 @@
                  column_content = content_tag(:span, (link_to_project(project, {}, :title => project.short_description)), class: "project-name")
                when :members
                  column_content = @members_by_project[project.id]
+               when /role_(\d+)$/
+                 if @orgas_by_roles_and_projects[project.id.to_s] && @orgas_by_roles_and_projects[project.id.to_s][$1]
+                   column_content = @orgas_by_roles_and_projects[project.id.to_s][$1].join(', ').html_safe
+                 end
+               when :organizations
+                 column_content = @directions_map[project.id]
                else
                  column_content = column_content(column, project)
              end

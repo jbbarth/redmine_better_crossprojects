@@ -6,6 +6,7 @@
       <%
          all_available_columns = ProjectQuery.available_columns
          all_available_columns += ProjectCustomField.all.collect {|cf| QueryCustomFieldColumn.new(cf) }
+         all_available_columns += Role.where("builtin = 0").order("position asc").all.collect { |role| QueryRoleColumn.new(role) }
       %>
       <input name="settings[default_columns]"
              id="settings_default_columns"

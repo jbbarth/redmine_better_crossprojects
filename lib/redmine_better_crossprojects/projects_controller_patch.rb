@@ -27,6 +27,16 @@ class ProjectsController
       load_members_map
     end
 
+    if @query.inline_columns.collect {|c| c.name}.include?(:organizations)
+      load_directions_map
+    end
+
+    # If we want to display columns based on "Roles"
+    if @query.inline_columns.collect { |c| c.name}.any? { |val| /role_(\d+)$/ =~ val }
+      # retrieve fullname for each organization #TODO improve perf
+      load_organizations_by_role_and_project
+    end
+
     #pre-load current user's memberships
     @memberships = User.current.memberships.inject({}) do |memo, membership|
       memo[membership.project_id] = membership.roles
@@ -76,6 +86,48 @@ class ProjectsController
         members_by_project_map[p.id] = members.collect {|m| "#{user_names_map[m.user_id]}"}.compact.join(', ').html_safe
       end
       members_by_project_map
+    end
+  end
+
+  def load_organizations_by_role_and_project
+    @orgas_by_roles_and_projects = Rails.cache.fetch ['all-organizations', OrganizationMembership.last.id, OrganizationRole.last.id].join('/') do
+      orgas_fullnames = {}
+      Organization.all.each do |o|
+        orgas_fullnames[o.id.to_s] = o.fullname
+      end
+
+      sql = Organization.select("organizations.id, project_id, role_id").joins("LEFT OUTER JOIN organization_memberships ON organization_id = organizations.id").joins("LEFT OUTER JOIN organization_roles ON organization_membership_id = organization_memberships.id").order("project_id, role_id, organizations.id").group("project_id, role_id, organizations.id").to_sql
+      array = ActiveRecord::Base.connection.execute(sql)
+      map = {}
+      array.each do |record|
+        unless map[record["project_id"]]
+          map[record["project_id"]] = {}
+        end
+        unless map[record["project_id"]][record["role_id"]]
+          map[record["project_id"]][record["role_id"]] = []
+        end
+        map[record["project_id"]][record["role_id"]] << orgas_fullnames[record["id"]]
+      end
+      map
+    end
+  end
+
+  def load_directions_map
+    @directions_map = Rails.cache.fetch ['all-directions', OrganizationMembership.last.id, Organization.maximum("updated_at").to_i].join('/') do
+      map = {}
+      @projects.each do |p|
+        orgas = p.send("organizations")
+        directions = []
+        orgas.each do |o|
+          directions << o.direction_organization.name
+        end
+        directions.uniq!
+        if (directions.size > 1)
+          directions = directions - ["CPII"]
+        end
+        map[p.id] = directions.join(', ').html_safe
+      end
+      map
     end
   end
 
@@ -219,6 +271,11 @@ module Redmine
                 show_value(cv)
               else
                 case column.name
+                  when :organizations
+                    unless @directions_map
+                      load_directions_map
+                    end
+                    value = @directions_map[project.id]
                   when :role
                     if @memberships[project.id].present?
                       value = @memberships[project.id].map(&:name).join(", ")
@@ -232,6 +289,12 @@ module Redmine
                     value = @members_by_project[project.id]
                   when :users
                     value = project.send(column.name).size
+                  when /role_(\d+)$/
+                    if @orgas_by_roles_and_projects[project.id.to_s] && @orgas_by_roles_and_projects[project.id.to_s][$1]
+                      value = @orgas_by_roles_and_projects[project.id.to_s][$1].join(', ')
+                    else
+                      value = ""
+                    end
                   else
                     value = project.send(column.name)
                 end
@@ -243,6 +306,8 @@ module Redmine
                   format_date(value)
                 elsif value.is_a?(Time)
                   format_time(value)
+                elsif value.class.name == 'Array'
+                  value.size
                 else
                   value
                 end
@@ -265,6 +330,11 @@ module QueriesHelper
     case column.name
       when :issues
         value = ""
+      when :organizations
+        unless @directions_map
+          load_directions_map
+        end
+        value = @directions_map[project.id]
       when :role
         if @memberships[project.id].present?
           value = @memberships[project.id].map(&:name).join(", ")
@@ -276,6 +346,15 @@ module QueriesHelper
           load_members_map
         end
         value = @members_by_project[project.id]
+      when /role_(\d+)$/
+        unless @orgas_by_roles_and_projects
+          load_organizations_by_role_and_project
+        end
+        if @orgas_by_roles_and_projects[project.id.to_s] && @orgas_by_roles_and_projects[project.id.to_s][$1]
+          value = @orgas_by_roles_and_projects[project.id.to_s][$1].join(', ')
+        else
+          value = ""
+        end
       else
         value = column.value(project)
     end
@@ -294,6 +373,8 @@ module QueriesHelper
         format_date(value)
       when 'Float'
         sprintf("%.2f", value).gsub('.', l(:general_csv_decimal_separator))
+      when 'Organization'
+        value.direction_organization.name
       else
         value.to_s
     end

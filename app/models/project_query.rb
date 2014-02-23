@@ -2,7 +2,8 @@ class ProjectQuery < Query
 
   self.queried_class = Project
 
-  self.available_columns = [
+  def self.available_columns
+    columns = [
       QueryColumn.new(:name, :sortable => "#{Project.table_name}.name", :groupable => true),
       QueryColumn.new(:parent, :sortable => "#{Project.table_name}.name", :caption => :field_parent),
       QueryColumn.new(:status, :sortable => "#{Project.table_name}.status", :groupable => true),
@@ -15,7 +16,10 @@ class ProjectQuery < Query
       QueryColumn.new(:role, :sortable => false),
       QueryColumn.new(:members, :sortable => false),
       QueryColumn.new(:users, :sortable => false)
-  ]
+    ]
+    columns << QueryColumn.new(:organizations, :sortable => false, :default_order => 'asc') if self.has_organizations_plugin?
+    columns
+  end
 
   def initialize(attributes=nil, *args)
     super attributes
@@ -42,6 +46,13 @@ class ProjectQuery < Query
     add_available_filter "created_on", :type => :date_past
     add_available_filter "updated_on", :type => :date_past
     add_available_filter "is_public", :type => :list, :values => [[l(:general_text_yes), "1"], [l(:general_text_no), "0"]]
+
+    if self.class.has_organizations_plugin?
+      directions_values = Organization.select("name, id").where('direction = ?', true).order("name")
+      add_available_filter("organizations", :type => :list, :values => directions_values.collect{|s| [s.name, s.id.to_s] })
+      organizations_values = Organization.all.collect{|s| [s.fullname, s.id.to_s] }.sort_by{|v| v.first}
+      add_available_filter("organization", :type => :list, :values => organizations_values)
+    end
 
     add_custom_fields_filters(project_custom_fields)
   end
@@ -97,10 +108,44 @@ class ProjectQuery < Query
         "GROUP BY #{member_table}.project_id HAVING count(#{member_table}.project_id) = #{value.size}"+ ') '
   end
 
+
+  def sql_for_organizations_field(field, operator, value)
+
+    organization_table = Organization.table_name
+    membership_table = OrganizationMembership.table_name
+
+    "#{Project.table_name}.id #{ operator == '=' ? 'IN' : 'NOT IN' } (SELECT project_id FROM #{membership_table} WHERE organization_id IN
+                                                                        (WITH RECURSIVE rec_tree(parent_id, id, name, direction, depth) AS (
+                                                                        SELECT t.parent_id, t.id, t.name, t.direction, 1
+                                                                        FROM #{organization_table} t
+                                                                        WHERE #{sql_for_field(field, '=', value, 't', 'id')}
+                                                                        UNION ALL
+                                                                        SELECT t.parent_id, t.id, t.name, rt.direction, rt.depth + 1
+                                                                        FROM #{organization_table} t, rec_tree rt
+                                                                        WHERE t.parent_id = rt.id
+                                                                      )
+                                                                      SELECT id FROM rec_tree))"
+  end
+
+  def sql_for_organization_field(field, operator, value)
+
+    membership_table = OrganizationMembership.table_name
+
+    "#{Project.table_name}.id #{ operator == '=' ? 'IN' : 'NOT IN' } (SELECT project_id FROM #{membership_table}
+                                                                          WHERE #{sql_for_field(field, '=', value, membership_table, 'organization_id')}
+                                                                        )"
+  end
+
   def available_columns
     return @available_columns if @available_columns
     @available_columns = self.class.available_columns.dup
     @available_columns += ProjectCustomField.all.collect {|cf| QueryCustomFieldColumn.new(cf) }
+    if self.class.has_organizations_plugin?
+      # role display is NOT strictly related to organizations plugin but for
+      # now the plugin only knows how to display these columns if the
+      # organizations plugin is present
+      @available_columns += Role.where("builtin = 0").order("position asc").all.collect { |role| QueryRoleColumn.new(role) }
+    end
     @available_columns
   end
 
@@ -150,6 +195,30 @@ class ProjectQuery < Query
       yield project, ancestors.size
       ancestors << project
     end
+  end
+
+  private
+  def self.has_organizations_plugin?
+    Redmine::Plugin.installed?(:redmine_organizations)
+  end
+end
+
+class QueryRoleColumn < QueryColumn
+
+  def initialize(role)
+      self.name = "role_#{role.id}".to_sym
+      self.sortable = false
+      self.groupable = false
+      @inline = true
+      @role = role
+  end
+
+  def caption
+    @role.name
+  end
+
+  def role
+    @role
   end
 
 end
