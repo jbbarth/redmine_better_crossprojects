@@ -2,21 +2,24 @@ class ProjectQuery < Query
 
   self.queried_class = Project
 
-  self.available_columns = [
+  def self.available_columns
+    columns = [
       QueryColumn.new(:name, :sortable => "#{Project.table_name}.name", :groupable => true),
       QueryColumn.new(:parent, :sortable => "#{Project.table_name}.name", :caption => :field_parent),
       QueryColumn.new(:status, :sortable => "#{Project.table_name}.status", :groupable => true),
       QueryColumn.new(:is_public, :sortable => "#{Project.table_name}.public", :groupabel => true),
       QueryColumn.new(:created_on, :sortable => "#{Project.table_name}.created_on", :default_order => 'desc'),
       QueryColumn.new(:updated_on, :sortable => "#{Project.table_name}.updated_on", :default_order => 'desc'),
-      QueryColumn.new(:organizations, :sortable => false, :default_order => 'asc'),
       QueryColumn.new(:activity, :sortable => false),
       QueryColumn.new(:issues, :sortable => false),
       QueryColumn.new(:description, :inline => false),
       QueryColumn.new(:role, :sortable => false),
       QueryColumn.new(:members, :sortable => false),
       QueryColumn.new(:users, :sortable => false)
-  ]
+    ]
+    columns << QueryColumn.new(:organizations, :sortable => false, :default_order => 'asc') if self.has_organizations_plugin?
+    columns
+  end
 
   def initialize(attributes=nil, *args)
     super attributes
@@ -44,10 +47,12 @@ class ProjectQuery < Query
     add_available_filter "updated_on", :type => :date_past
     add_available_filter "is_public", :type => :list, :values => [[l(:general_text_yes), "1"], [l(:general_text_no), "0"]]
 
-    directions_values = Organization.select("name, id").where('direction = ?', true).order("name")
-    add_available_filter("organizations", :type => :list, :values => directions_values.collect{|s| [s.name, s.id.to_s] })
-    organizations_values = Organization.all.collect{|s| [s.fullname, s.id.to_s] }.sort_by{|v| v.first}
-    add_available_filter("organization", :type => :list, :values => organizations_values)
+    if self.class.has_organizations_plugin?
+      directions_values = Organization.select("name, id").where('direction = ?', true).order("name")
+      add_available_filter("organizations", :type => :list, :values => directions_values.collect{|s| [s.name, s.id.to_s] })
+      organizations_values = Organization.all.collect{|s| [s.fullname, s.id.to_s] }.sort_by{|v| v.first}
+      add_available_filter("organization", :type => :list, :values => organizations_values)
+    end
 
     add_custom_fields_filters(project_custom_fields)
   end
@@ -135,7 +140,12 @@ class ProjectQuery < Query
     return @available_columns if @available_columns
     @available_columns = self.class.available_columns.dup
     @available_columns += ProjectCustomField.all.collect {|cf| QueryCustomFieldColumn.new(cf) }
-    @available_columns += Role.where("builtin = 0").order("position asc").all.collect { |role| QueryRoleColumn.new(role) }
+    if self.class.has_organizations_plugin?
+      # role display is NOT strictly related to organizations plugin but for
+      # now the plugin only knows how to display these columns if the
+      # organizations plugin is present
+      @available_columns += Role.where("builtin = 0").order("position asc").all.collect { |role| QueryRoleColumn.new(role) }
+    end
     @available_columns
   end
 
@@ -187,6 +197,10 @@ class ProjectQuery < Query
     end
   end
 
+  private
+  def self.has_organizations_plugin?
+    Redmine::Plugin.installed?(:redmine_organizations)
+  end
 end
 
 class QueryRoleColumn < QueryColumn
