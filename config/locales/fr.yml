@@ -4,4 +4,6 @@ fr:
   field_members: Membres
   quick_search: Recherche rapide
   field_issues: Demandes
+  field_organizations: Directions impliquées
+  field_organization: Organisation
   field_users: Utilisateurs
