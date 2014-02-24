@@ -224,7 +224,7 @@ module Redmine
           issues_to_pdf_draw_borders(pdf, base_x, base_y, base_y + max_height, 0, col_width)
           pdf.SetY(base_y + max_height);
 
-          if query.has_column?(:description) && project.description?
+          if !ProjectQuery.show_description_as_a_column? && query.has_column?(:description) && project.description?
             pdf.SetX(10)
             pdf.SetAutoPageBreak(true, 20)
             pdf.RDMwriteHTMLCell(0, 5, 10, 0, project.description.to_s, project.attachments, "LRBT")

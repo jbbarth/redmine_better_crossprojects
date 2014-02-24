@@ -7,3 +7,4 @@ en:
   field_organizations: Directions
   field_organization: Organization
   field_users: Users
+  setting_show_description_as_a_column: Show description as a column

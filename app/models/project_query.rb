@@ -12,11 +12,15 @@ class ProjectQuery < Query
       QueryColumn.new(:updated_on, :sortable => "#{Project.table_name}.updated_on", :default_order => 'desc'),
       QueryColumn.new(:activity, :sortable => false),
       QueryColumn.new(:issues, :sortable => false),
-      QueryColumn.new(:description, :inline => false),
       QueryColumn.new(:role, :sortable => false),
       QueryColumn.new(:members, :sortable => false),
       QueryColumn.new(:users, :sortable => false)
     ]
+    if show_description_as_a_column?
+      columns << QueryColumn.new(:description)
+    else
+      columns << QueryColumn.new(:description, :inline => false)
+    end
     columns << QueryColumn.new(:organizations, :sortable => false, :default_order => 'asc') if self.has_organizations_plugin?
     columns
   end
@@ -195,6 +199,10 @@ class ProjectQuery < Query
       yield project, ancestors.size
       ancestors << project
     end
+  end
+
+  def self.show_description_as_a_column?
+    Setting["plugin_redmine_better_crossprojects"]["show_description_as_a_column"]
   end
 
   private

@@ -14,6 +14,12 @@
              value="<%= Setting['plugin_redmine_better_crossprojects']['default_columns'] %>">
     </td>
   </tr>
+  <tr>
+    <th style="text-align: right;"><%= l("setting_show_description_as_a_column") %> :</th>
+    <td>
+      <%= check_box_tag "settings[show_description_as_a_column]", "show_description_as_a_column", Setting["plugin_redmine_better_crossprojects"]["show_description_as_a_column"] %>
+    </td>
+  </tr>
   </tbody>
 </table>
 <script type="text/javascript">

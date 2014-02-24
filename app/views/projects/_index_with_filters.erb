@@ -33,10 +33,12 @@
                                      @query.group_by)
                       ) %></td>
             </tr>
-            <tr>
-              <td><%= l(:button_show) %></td>
-              <td><%= available_block_columns_tags(@query) %></td>
-            </tr>
+            <% unless @query.available_block_columns.empty? %>
+              <tr>
+                <td><%= l(:button_show) %></td>
+                <td><%= available_block_columns_tags(@query) %></td>
+              </tr>
+            <% end %>
           </table>
         </div>
 
