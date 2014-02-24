@@ -27,7 +27,7 @@ class ProjectQuery < Query
   end
 
   def initialize_available_filters
-    project_custom_fields = ProjectCustomField.all
+    project_custom_fields = ProjectCustomField.sorted
 
     project_values = all_projects_values
     add_available_filter("id",
