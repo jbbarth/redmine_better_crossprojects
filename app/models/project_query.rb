@@ -4,10 +4,11 @@ class ProjectQuery < Query
 
   def self.available_columns
     columns = [
-      QueryColumn.new(:name, :sortable => "#{Project.table_name}.name", :groupable => true),
+      QueryColumn.new(:name, :sortable => "#{Project.table_name}.name", :groupable => false),
       QueryColumn.new(:parent, :sortable => "#{Project.table_name}.name", :caption => :field_parent),
       QueryColumn.new(:status, :sortable => "#{Project.table_name}.status", :groupable => true),
       QueryColumn.new(:is_public, :sortable => "#{Project.table_name}.public", :groupabel => true),
+      QueryColumn.new(:identifier, :sortable => "#{Project.table_name}.identifier", :groupabel => false),
       QueryColumn.new(:created_on, :sortable => "#{Project.table_name}.created_on", :default_order => 'desc'),
       QueryColumn.new(:updated_on, :sortable => "#{Project.table_name}.updated_on", :default_order => 'desc'),
       QueryColumn.new(:activity, :sortable => false),
@@ -176,7 +177,7 @@ class ProjectQuery < Query
     if grouped?
       begin
         # Rails3 will raise an (unexpected) RecordNotFound if there's only a nil group value
-        r = Project.visible.count(:joins => joins_for_order_statement(group_by_statement), :group => group_by_statement, :conditions => statement)
+        r = Project.count(:joins => joins_for_order_statement(group_by_statement), :group => group_by_statement, :conditions => statement)
       rescue ActiveRecord::RecordNotFound
         r = {nil => project_count}
       end
