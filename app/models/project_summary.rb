@@ -59,4 +59,13 @@ class ProjectSummary
     end
     @stats
   end
+
+  def self.sql_activity_records
+    summary = self.new(1)
+    journals = Journal.select('count(journals.*)').joins(:issue)
+      .where("notes is not null and #{Journal.table_name}.created_on > ? and project_id in (projects.id)", summary.activity_period_begin).to_sql
+    issues = Issue.select('count(issues.*)').where('created_on > ? and project_id in (projects.id)', summary.activity_period_begin).to_sql
+    "(select (#{journals}) + (#{issues}))"
+  end
+
 end
