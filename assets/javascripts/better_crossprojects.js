@@ -59,6 +59,8 @@ $(function() {
           }
       });
 
+      $('input#visible_projects').val(visible_projects);
+
   });
 });
 
