@@ -9,7 +9,7 @@ describe ProjectSummary do
 
   describe "#project_ids" do
     it "gives access to project_ids" do
-      project_ids = stub
+      project_ids = double
       ProjectSummary.new(project_ids).project_ids.should == project_ids
     end
   end
@@ -48,10 +48,10 @@ describe ProjectSummary do
     end
 
     it "builds statistics based upon activity_records" do
-      summary.stub(:project_ids) { [1] }
-      summary.stub(:activity_records) {
-        [stub(:project_id => 1, :created_on => Date.today),
-         stub(:project_id => 1, :created_on => Date.today)]
+      allow(summary).to receive(:project_ids) { [1] }
+      allow(summary).to receive(:activity_records) {
+        [double(:project_id => 1, :created_on => Date.today),
+         double(:project_id => 1, :created_on => Date.today)]
       }
       summary.activity_statistics[1].last.should == 2
     end
