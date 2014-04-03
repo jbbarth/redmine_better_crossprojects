@@ -55,7 +55,8 @@ class ProjectSummary
     activity_records.each do |record|
       id = record.project_id
       n = ((record.created_on.to_date - activity_period_begin) / 7).to_i
-      @stats[id][n] += 1 if @stats[id] && @stats[id][n]
+      @stats[id][n] = 0 if @stats[id] && @stats[id][n].nil?
+      @stats[id][n] += 1 if @stats[id]
     end
     @stats
   end
