@@ -9,6 +9,7 @@ class ProjectQuery < Query
       QueryColumn.new(:status, :sortable => "#{Project.table_name}.status", :groupable => true),
       QueryColumn.new(:is_public, :sortable => "#{Project.table_name}.public", :groupable => true),
       QueryColumn.new(:identifier, :sortable => "#{Project.table_name}.identifier", :groupable => false),
+      QueryColumn.new(:homepage, :sortable => "#{Project.table_name}.homepage", :groupable => false),
       QueryColumn.new(:created_on, :sortable => "#{Project.table_name}.created_on", :default_order => 'desc'),
       QueryColumn.new(:updated_on, :sortable => "#{Project.table_name}.updated_on", :default_order => 'desc'),
       QueryColumn.new(:activity, :groupable => false, :sortable => ProjectSummary.sql_activity_records),
