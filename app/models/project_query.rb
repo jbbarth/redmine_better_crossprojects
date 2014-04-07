@@ -53,6 +53,8 @@ class ProjectQuery < Query
     add_available_filter "updated_on", :type => :date_past
     add_available_filter "is_public", :type => :list, :values => [[l(:general_text_yes), "1"], [l(:general_text_no), "0"]]
 
+    add_available_filter "parent_id", :type => :list, :values => project_values
+
     if self.class.has_organizations_plugin?
       directions_values = Organization.select("name, id").where('direction = ?', true).order("name")
       add_available_filter("organizations", :type => :list, :values => directions_values.collect{|s| [s.name, s.id.to_s] })
@@ -67,7 +69,7 @@ class ProjectQuery < Query
   def available_filters_as_json
     json = {}
     available_filters.each do |field, options|
-      options[:name] = l("field_name") if field == "id"
+      options[:name] = l("field_project") if field == "id"
       options[:name] = l("label_member") if field == "member_id"
       json[field] = options.slice(:type, :name, :values).stringify_keys
     end
@@ -112,6 +114,20 @@ class ProjectQuery < Query
         "JOIN #{project_table} ON #{member_table}.project_id = #{project_table}.id AND " +
         sql_for_field(field, '=', value, member_table, 'user_id') +
         "GROUP BY #{member_table}.project_id HAVING count(#{member_table}.project_id) = #{value.size}"+ ') '
+  end
+
+  def sql_for_parent_id_field(field, operator, value)
+
+    "#{Project.table_name}.id #{ operator == '=' ? 'IN' : 'NOT IN' } (WITH RECURSIVE rec_tree(parent_id, id, name, depth) AS (
+                                                                        SELECT t.parent_id, t.id, t.name, 1
+                                                                        FROM #{Project.table_name} t
+                                                                        WHERE #{sql_for_field(field, '=', value, 't', 'id')}
+                                                                        UNION ALL
+                                                                        SELECT t.parent_id, t.id, t.name, rt.depth + 1
+                                                                        FROM #{Project.table_name} t, rec_tree rt
+                                                                        WHERE t.parent_id = rt.id
+                                                                      )
+                                                                      SELECT id FROM rec_tree)"
   end
 
 
