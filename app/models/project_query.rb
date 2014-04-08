@@ -117,7 +117,6 @@ class ProjectQuery < Query
   end
 
   def sql_for_parent_id_field(field, operator, value)
-
     "#{Project.table_name}.id #{ operator == '=' ? 'IN' : 'NOT IN' } (WITH RECURSIVE rec_tree(parent_id, id, name, depth) AS (
                                                                         SELECT t.parent_id, t.id, t.name, 1
                                                                         FROM #{Project.table_name} t
@@ -127,7 +126,8 @@ class ProjectQuery < Query
                                                                         FROM #{Project.table_name} t, rec_tree rt
                                                                         WHERE t.parent_id = rt.id
                                                                       )
-                                                                      SELECT id FROM rec_tree)"
+                                                                      SELECT id FROM rec_tree)
+    AND #{sql_for_field(field, '!', value, Project.table_name, 'id')}" # remove parent project
   end
 
 
