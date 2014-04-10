@@ -1,7 +1,6 @@
 tr.project.idnt td.name span { background:none; }
 .projects-list { width:100%; margin:10px 0; border-collapse:collapse; cursor:default; }
 .projects-list td { padding:5px 6px; }
-.projects-list td.name{width: 150px;max-width: 220px;overflow: hidden;white-space: nowrap;text-overflow: ellipsis;}
 .projects-list th { vertical-align:top; }
 .projects-list .odd, .projects-list .odd+.even-odd-linked { background-color:#fff; }
 .projects-list .even, .projects-list .even+.even-odd-linked { background-color:#f8f9fa; }

@@ -46,7 +46,7 @@
                when :users
                  column_content = "<span></span>"
                when :name
-                 column_content = content_tag(:span, (link_to_project(project, {}, :title => "#{project} - #{project.short_description}")), class: "project-name")
+                 column_content = content_tag(:span, (link_to_project(project, {}, :title => project.short_description)), class: "project-name")
                when :members
                  column_content = members_map[project.id]
                when /role_(\d+)$/
