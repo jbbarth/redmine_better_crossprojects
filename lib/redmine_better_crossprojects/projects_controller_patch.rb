@@ -99,7 +99,7 @@ class ProjectsController
   helper_method :organizations_map
 
   def directions_map
-    @directions_map ||= Rails.cache.fetch ['all-directions', OrganizationMembership.last.id, Organization.maximum("updated_at").to_i].join('/') do
+    @directions_map ||= Rails.cache.fetch ['all-directions', OrganizationMembership.last.try(:id), Organization.maximum("updated_at").to_i].join('/') do
       map = {}
       @projects.each do |p|
         orgas = p.send("organizations")
