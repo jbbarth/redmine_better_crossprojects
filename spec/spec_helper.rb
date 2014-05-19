@@ -4,7 +4,6 @@ ENV["RAILS_ENV"] ||= 'test'
 require File.expand_path('../../../../config/environment', __FILE__)
 
 #test gems
-require 'rspec'
 require 'rspec/autorun'
 require 'rspec/mocks'
 require 'rspec/mocks/standalone'

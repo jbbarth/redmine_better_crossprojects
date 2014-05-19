@@ -1,6 +1,6 @@
 require 'test/unit'
 require 'active_support/test_case'
-require 'rspec'
+require 'rspec/core'
 
 # IMPORTANT DISCLAIMER ABOUT THIS HACK
 #

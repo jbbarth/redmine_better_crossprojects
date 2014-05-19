@@ -21,6 +21,7 @@ Redmine::Plugin.register :redmine_better_crossprojects do
   author_url 'mailto:jeanbaptiste.barth@gmail.com'
   requires_redmine :version_or_higher => '2.0.3'
   requires_redmine_plugin :redmine_base_select2, :version_or_higher => '0.0.1'
+  requires_redmine_plugin :redmine_base_rspec, :version_or_higher => '0.0.1'
   version '0.2'
   settings :default => { 'default_columns' => "name,role,users,issues,activity", 'show_description_as_a_column' => true },
            :partial => 'settings/redmine_plugin_better_crossprojects_settings'
