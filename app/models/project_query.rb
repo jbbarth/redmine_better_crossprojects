@@ -161,7 +161,7 @@ class ProjectQuery < Query
   def available_columns
     return @available_columns if @available_columns
     @available_columns = self.class.available_columns.dup
-    @available_columns += ProjectCustomField.all.collect {|cf| QueryCustomFieldColumn.new(cf) }
+    @available_columns += ProjectCustomField.visible.collect {|cf| QueryCustomFieldColumn.new(cf) }
     if self.class.has_organizations_plugin?
       # role display is NOT strictly related to organizations plugin but for
       # now the plugin only knows how to display these columns if the
