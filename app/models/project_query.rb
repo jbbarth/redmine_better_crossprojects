@@ -7,7 +7,7 @@ class ProjectQuery < Query
       QueryColumn.new(:name, :sortable => "#{Project.table_name}.name", :groupable => false),
       QueryColumn.new(:parent, :sortable => "#{Project.table_name}.name", :caption => :field_parent),
       QueryColumn.new(:status, :sortable => "#{Project.table_name}.status", :groupable => true),
-      QueryColumn.new(:is_public, :sortable => "#{Project.table_name}.public", :groupable => true),
+      QueryColumn.new(:is_public, :sortable => "#{Project.table_name}.is_public", :groupable => true),
       QueryColumn.new(:identifier, :sortable => "#{Project.table_name}.identifier", :groupable => false),
       QueryColumn.new(:homepage, :sortable => "#{Project.table_name}.homepage", :groupable => false),
       QueryColumn.new(:created_on, :sortable => "#{Project.table_name}.created_on", :default_order => 'desc'),
@@ -230,7 +230,6 @@ class ProjectQuery < Query
 end
 
 class QueryRoleColumn < QueryColumn
-
   def initialize(role)
       self.name = "role_#{role.id}".to_sym
       self.sortable = false
@@ -246,5 +245,15 @@ class QueryRoleColumn < QueryColumn
   def role
     @role
   end
+end
 
+class QueryCustomFieldColumn < QueryColumn
+  def value(object)
+    if object.is_a?(Project) || custom_field.visible_by?(object.project, User.current)
+      cv = object.custom_values.select {|v| v.custom_field_id == @cf.id}.collect {|v| @cf.cast_value(v.value)}
+      cv.size > 1 ? cv.sort {|a,b| a.to_s <=> b.to_s} : cv.first
+    else
+      nil
+    end
+  end
 end
