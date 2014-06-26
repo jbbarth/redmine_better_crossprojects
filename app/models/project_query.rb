@@ -33,8 +33,6 @@ class ProjectQuery < Query
   end
 
   def initialize_available_filters
-    project_custom_fields = ProjectCustomField.sorted
-
     project_values = all_projects_values
     add_available_filter("id",
                          :type => :list_optional, :values => project_values
@@ -62,7 +60,9 @@ class ProjectQuery < Query
       add_available_filter("organization", :type => :list, :values => organizations_values)
     end
 
-    add_custom_fields_filters(project_custom_fields)
+    ProjectCustomField.where(:is_filter => true).sorted.each do |field|
+      add_custom_field_filter(field)
+    end
   end
 
   # Returns a representation of the available filters for JSON serialization
@@ -161,7 +161,7 @@ class ProjectQuery < Query
   def available_columns
     return @available_columns if @available_columns
     @available_columns = self.class.available_columns.dup
-    @available_columns += ProjectCustomField.visible.collect {|cf| QueryCustomFieldColumn.new(cf) }
+    @available_columns += ProjectCustomField.sorted.collect {|cf| QueryCustomFieldColumn.new(cf) }
     if self.class.has_organizations_plugin?
       # role display is NOT strictly related to organizations plugin but for
       # now the plugin only knows how to display these columns if the
