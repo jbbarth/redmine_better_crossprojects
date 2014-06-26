@@ -3,7 +3,7 @@ require_dependency 'custom_field'
 class CustomField < ActiveRecord::Base
   def visibility_by_project_condition_with_project_custom_field(project_key=nil, user=User.current, id_column=nil)
     if self.class.customized_class==Project
-      true
+      "1=1"
     else
       visibility_by_project_condition_without_project_custom_field(project_key, user, id_column)
     end
