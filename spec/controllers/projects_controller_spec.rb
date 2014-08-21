@@ -1,4 +1,4 @@
-require File.expand_path('../../spec_helper', __FILE__)
+require 'spec_helper'
 require 'redmine_better_crossprojects/projects_controller_patch'
 
 describe ProjectsController do
