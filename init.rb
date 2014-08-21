@@ -26,6 +26,7 @@ Redmine::Plugin.register :redmine_better_crossprojects do
   version '0.2'
   settings :default => { 'default_columns' => "name,role,users,issues,activity", 'show_description_as_a_column' => true },
            :partial => 'settings/redmine_plugin_better_crossprojects_settings'
+  requires_redmine_plugin :redmine_base_rspec, :version_or_higher => '0.0.3' if Rails.env.test?
 end
 
 Redmine::MenuManager.map :project_menu do |menu|
