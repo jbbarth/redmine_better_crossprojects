@@ -1,0 +1,10 @@
+# English strings go here for Rails i18n
+ja:
+  label_filters_and_options: フィルタ・オプション
+  field_members: メンバー
+  quick_search: 検索
+  field_issues: チケット
+  field_organizations: Directions
+  field_organization: 組織
+  field_users: ユーザー
+  setting_show_description_as_a_column: プロジェクトの説明をカラムに表示する
