@@ -249,7 +249,7 @@ end
 
 class QueryCustomFieldColumn < QueryColumn
   def value(object)
-    if object.is_a?(Project) || custom_field.visible_by?(object.project, User.current)
+    if object.kind_of?(Project) || custom_field.visible_by?(object.project, User.current)
       cv = object.custom_values.select {|v| v.custom_field_id == @cf.id}.collect {|v| @cf.cast_value(v.value)}
       cv.size > 1 ? cv.sort {|a,b| a.to_s <=> b.to_s} : cv.first
     else
