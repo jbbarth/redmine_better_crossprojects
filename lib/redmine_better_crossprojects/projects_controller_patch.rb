@@ -81,7 +81,7 @@ class ProjectsController
         orgas_fullnames[o.id.to_s] = o.fullname
       end
 
-      sql = Organization.select("organizations.id, project_id, role_id").joins("LEFT OUTER JOIN organization_memberships ON organization_id = organizations.id").joins("LEFT OUTER JOIN organization_roles ON organization_membership_id = organization_memberships.id").order("project_id, role_id, organizations.id").group("project_id, role_id, organizations.id").to_sql
+      sql = Organization.select("organizations.id, project_id, role_id").joins(:users => {:members => :member_roles}).order("project_id, role_id, organizations.id").group("project_id, role_id, organizations.id").to_sql
       array = ActiveRecord::Base.connection.execute(sql)
       map = {}
       array.each do |record|
