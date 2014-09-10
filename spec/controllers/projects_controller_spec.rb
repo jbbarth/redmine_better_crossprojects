@@ -4,8 +4,6 @@ require 'redmine_better_crossprojects/projects_controller_patch'
 describe ProjectsController do
   render_views
 
-  fixtures :organizations, :organization_memberships, :organization_roles
-
   # In this test we don't use fixtures voluntarily for ProjectQuery's
   #
   # If we want to use fixtures, we'd have to set a specific fixture_path,
