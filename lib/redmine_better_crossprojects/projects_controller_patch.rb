@@ -255,7 +255,7 @@ module Redmine
         query.inline_columns.collect do |column|
           s = if column.is_a?(QueryCustomFieldColumn)
                 cv = project.custom_field_values.detect {|v| v.custom_field_id == column.custom_field.id}
-                show_value(cv)
+                show_value(cv, false)
               else
                 case column.name
                   when :organizations
