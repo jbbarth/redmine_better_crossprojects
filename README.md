@@ -16,7 +16,7 @@ Note that this plugin now depends on:
 * **redmine_base_select2** which can be found [here](https://github.com/jbbarth/redmine_base_select2)
 * **redmine_base_deface** which can be found [here](https://github.com/jbbarth/redmine_base_deface)
 
-First download the source or clone the plugin and put it in the "plugins/" directory of your redmine instance. Note that this is crucial that the directory is named redmine_super_wiki !
+First download the source or clone the plugin and put it in the "plugins/" directory of your redmine instance. Note that this is crucial that the directory is named 'redmine_better_crossprojects' !
 
 Then execute:
 
