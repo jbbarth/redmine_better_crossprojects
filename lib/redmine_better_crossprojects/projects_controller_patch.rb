@@ -75,7 +75,7 @@ class ProjectsController
   helper_method :members_map
 
   def organizations_map
-    @organizations_map ||= Rails.cache.fetch ['all-organizations', OrganizationMembership.maximum("id"), OrganizationRole.maximum("id")].join('/') do
+    @organizations_map ||= Rails.cache.fetch ['all-organizations', Organization.maximum("updated_at").to_i, OrganizationMembership.maximum("id"), OrganizationRole.maximum("id")].join('/') do
       orgas_fullnames = {}
       Organization.all.each do |o|
         orgas_fullnames[o.id.to_s] = o.fullname
