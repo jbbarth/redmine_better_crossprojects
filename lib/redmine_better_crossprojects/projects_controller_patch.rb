@@ -75,7 +75,7 @@ class ProjectsController
   helper_method :members_map
 
   def organizations_map
-    @organizations_map ||= Rails.cache.fetch ['all-organizations', OrganizationMembership.last.id, OrganizationRole.last.id].join('/') do
+    @organizations_map ||= Rails.cache.fetch ['all-organizations', OrganizationMembership.maximum("id"), OrganizationRole.maximum("id")].join('/') do
       orgas_fullnames = {}
       Organization.all.each do |o|
         orgas_fullnames[o.id.to_s] = o.fullname
@@ -99,7 +99,7 @@ class ProjectsController
   helper_method :organizations_map
 
   def directions_map
-    @directions_map ||= Rails.cache.fetch ['all-directions', OrganizationMembership.last.try(:id), Organization.maximum("updated_at").to_i].join('/') do
+    @directions_map ||= Rails.cache.fetch ['all-directions', OrganizationMembership.maximum("id"), Organization.maximum("updated_at").to_i].join('/') do
       map = {}
       @projects.each do |p|
         orgas = p.send("organizations")
