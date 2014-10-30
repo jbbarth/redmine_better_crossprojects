@@ -12,7 +12,7 @@ Redmine::Plugin.register :redmine_better_crossprojects do
   url 'https://github.com/jbbarth/redmine_better_crossprojects'
   author 'Jean-Baptiste BARTH'
   author_url 'mailto:jeanbaptiste.barth@gmail.com'
-  requires_redmine :version_or_higher => '2.0.3'
+  requires_redmine :version_or_higher => '2.0.3' # TODO Restrict to 2.6.0 because of new way to generate PDFs
   requires_redmine_plugin :redmine_base_select2, :version_or_higher => '0.0.1'
   requires_redmine_plugin :redmine_base_deface, :version_or_higher => '0.0.1'
   requires_redmine_plugin :redmine_base_rspec, :version_or_higher => '0.0.3' if Rails.env.test?
