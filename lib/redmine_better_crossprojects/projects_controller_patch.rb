@@ -154,18 +154,18 @@ module Redmine
 
         pdf = ITCPDF.new(current_language, "L")
         title = query.new_record? ? l(:label_project_plural) : query.name
-        pdf.SetTitle(title)
+        pdf.set_title(title)
         pdf.alias_nb_pages
         pdf.footer_date = format_date(Date.today)
-        pdf.SetAutoPageBreak(false)
-        pdf.AddPage("L")
+        pdf.set_auto_page_break(false)
+        pdf.add_page("L")
 
         # Landscape A4 = 210 x 297 mm
-        page_height   = 210
-        page_width    = 297
-        left_margin   = 10
-        right_margin  = 10
-        bottom_margin = 20
+        page_height   = pdf.get_page_height # 210
+        page_width    = pdf.get_page_width  # 297
+        left_margin   = pdf.get_original_margins['left'] # 10
+        right_margin  = pdf.get_original_margins['right'] # 10
+        bottom_margin = pdf.get_footer_margin
         row_height    = 4
 
         # column widths
@@ -185,7 +185,7 @@ module Redmine
         # title
         pdf.SetFontStyle('B',11)
         pdf.RDMCell(190,10, title)
-        pdf.Ln
+        pdf.ln
         render_table_header(pdf, query, col_width, row_height, table_width)
         previous_group = false
         ProjectQuery.unsorted_project_tree(projects) do |project, level|
@@ -194,7 +194,7 @@ module Redmine
             pdf.SetFontStyle('B',10)
             group_label = group.blank? ? 'None' : group.to_s.dup
             group_label << " (#{query.project_count_by_group[group]})"
-            pdf.Bookmark group_label, 0, -1
+            pdf.bookmark group_label, 0, -1
             pdf.RDMCell(table_width, row_height * 2, group_label, 1, 1, 'L')
             pdf.SetFontStyle('',8)
             previous_group = group
@@ -203,32 +203,25 @@ module Redmine
           # fetch row values
           col_values = fetch_row_values(project, query, level)
 
-          # render it off-page to find the max height used
-          base_x = pdf.GetX
-          base_y = pdf.GetY
-          pdf.SetY(2 * page_height)
-          max_height = issues_to_pdf_write_cells(pdf, col_values, col_width, row_height)
-          pdf.SetXY(base_x, base_y)
-
           # make new page if it doesn't fit on the current one
+          base_y = pdf.get_y
+          max_height = get_issues_to_pdf_write_cells(pdf, col_values, col_width)
           space_left = page_height - base_y - bottom_margin
           if max_height > space_left
-            pdf.AddPage("L")
+            pdf.add_page("L")
             render_table_header(pdf, query, col_width, row_height, table_width)
-            base_x = pdf.GetX
-            base_y = pdf.GetY
+            base_y = pdf.get_y
           end
 
           # write the cells on page
-          issues_to_pdf_write_cells(pdf, col_values, col_width, row_height)
-          issues_to_pdf_draw_borders(pdf, base_x, base_y, base_y + max_height, 0, col_width)
-          pdf.SetY(base_y + max_height);
+          issues_to_pdf_write_cells(pdf, col_values, col_width, max_height)
+          pdf.set_y(base_y + max_height)
 
           if !ProjectQuery.show_description_as_a_column? && query.has_column?(:description) && project.description?
-            pdf.SetX(10)
-            pdf.SetAutoPageBreak(true, 20)
-            pdf.RDMwriteHTMLCell(0, 5, 10, 0, project.description.to_s, project.attachments, "LRBT")
-            pdf.SetAutoPageBreak(false)
+            pdf.set_x(10)
+            pdf.set_auto_page_break(true, bottom_margin)
+            pdf.RDMwriteHTMLCell(0, 5, 10, '', project.description.to_s, project.attachments, "LRBT")
+            pdf.set_auto_page_break(false)
           end
         end
 
@@ -236,7 +229,7 @@ module Redmine
           pdf.SetFontStyle('B',10)
           pdf.RDMCell(0, row_height, '...')
         end
-        pdf.Output
+        pdf.output
       end
 
       def remove_column(query, column_name)
