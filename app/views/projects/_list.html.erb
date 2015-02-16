@@ -51,7 +51,11 @@
                  column_content = members_map[project.id]
                when /role_(\d+)$/
                  if organizations_map[project.id.to_s] && organizations_map[project.id.to_s][$1]
-                   column_content = organizations_map[project.id.to_s][$1].join(', ').html_safe
+                   column_content = organizations_map[project.id.to_s][$1].uniq.join(', ').html_safe
+                 end
+               when /function_(\d+)$/
+                 if organizations_map[project.id.to_s] && organizations_map[project.id.to_s][column.name.to_s]
+                   column_content = organizations_map[project.id.to_s][column.name.to_s].uniq.join(', ').html_safe
                  end
                when :organizations
                  column_content = directions_map[project.id]

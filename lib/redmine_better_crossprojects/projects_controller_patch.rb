@@ -75,7 +75,8 @@ class ProjectsController
   helper_method :members_map
 
   def organizations_map
-    @organizations_map ||= Rails.cache.fetch ['all-organizations', Member.maximum("created_on").to_i, Organization.maximum("updated_at").to_i].join('/') do
+    cache_strategy = ['all-organizations', Member.maximum("created_on").to_i, Organization.maximum("updated_at").to_i, 2].join('/')
+    @organizations_map ||= Rails.cache.fetch cache_strategy do
       orgas_fullnames = {}
       Organization.all.each do |o|
         orgas_fullnames[o.id.to_s] = o.fullname
@@ -93,6 +94,22 @@ class ProjectsController
         end
         map[record["project_id"]][record["role_id"]] << orgas_fullnames[record["id"]]
       end
+
+      if Redmine::Plugin.installed?(:redmine_limited_visibility)
+        sql = Organization.select("organizations.id, project_id, function_id").joins(:users => {:members => :member_functions}).order("project_id, function_id, organizations.id").group("project_id, function_id, organizations.id").to_sql
+        array = ActiveRecord::Base.connection.execute(sql)
+        array.each do |record|
+          unless map[record["project_id"]]
+            map[record["project_id"]] = {}
+          end
+          unless map[record["project_id"]]['function_'+record["function_id"]]
+            map[record["project_id"]]['function_'+record["function_id"]] = []
+          end
+          map[record["project_id"]]['function_'+record["function_id"]] << orgas_fullnames[record["id"]]
+          map[record["project_id"]]['function_'+record["function_id"]] << orgas_fullnames[record["id"]]
+        end
+      end
+
       map
     end
   end

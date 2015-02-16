@@ -168,8 +168,11 @@ class ProjectQuery < Query
     if self.class.has_organizations_plugin?
       # role display is NOT strictly related to organizations plugin but for
       # now the plugin only knows how to display these columns if the
-      # organizations plugin is present
+      # organizations plugin is present => we display organizations names in the column...
       @available_columns += Role.where("builtin = 0").order("position asc").all.collect { |role| QueryRoleColumn.new(role) }
+      if self.class.has_limited_visibility_plugin?
+        @available_columns += Function.order("position asc").all.collect { |function| QueryFunctionColumn.new(function) }
+      end
     end
     @available_columns
   end
@@ -227,9 +230,14 @@ class ProjectQuery < Query
   end
 
   private
-  def self.has_organizations_plugin?
-    Redmine::Plugin.installed?(:redmine_organizations)
-  end
+
+    def self.has_organizations_plugin?
+      Redmine::Plugin.installed?(:redmine_organizations)
+    end
+
+    def self.has_limited_visibility_plugin?
+      Redmine::Plugin.installed?(:redmine_limited_visibility)
+    end
 end
 
 class QueryRoleColumn < QueryColumn
@@ -247,6 +255,24 @@ class QueryRoleColumn < QueryColumn
 
   def role
     @role
+  end
+end
+
+class QueryFunctionColumn < QueryColumn
+  def initialize(function)
+    self.name = "function_#{function.id}".to_sym
+    self.sortable = false
+    self.groupable = false
+    @inline = true
+    @function = function
+  end
+
+  def caption
+    @function.name
+  end
+
+  def role
+    @function
   end
 end
 
