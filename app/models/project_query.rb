@@ -79,7 +79,8 @@ class ProjectQuery < Query
   def all_users
     timestamp = Member.maximum(:created_on)
     Rails.cache.fetch ['all-users', timestamp.to_i].join('/') do
-      principals = Principal.active.uniq.joins(:members).where("#{Member.table_name}.project_id IN (SELECT id FROM #{Project.table_name})")
+      principals = []
+      principals += Principal.active.uniq.joins(:members).where("#{Member.table_name}.project_id IN (SELECT id FROM #{Project.table_name})")
       principals.sort!
       principals.select { |p| p.is_a?(User) }
     end
@@ -91,14 +92,14 @@ class ProjectQuery < Query
 
     order_option = [group_by_sort_order, options[:order]].flatten.reject(&:blank?)
 
-    Project.where(options[:conditions]).all(
-        :conditions => statement,
-        :include => (options[:include] || []).uniq,
-        :limit  => options[:limit],
-        :joins => joins_for_order_statement(order_option.join(',')),
-        :order => order_option,
-        :offset => options[:offset]
-    )
+    Project.where(options[:conditions]).
+        where(statement).
+        includes((options[:include] || []).uniq).
+        limit(options[:limit]).
+        joins(joins_for_order_statement(order_option.join(','))).
+        order(order_option).
+        offset(options[:offset])
+
   rescue ::ActiveRecord::StatementInvalid => e
     raise StatementInvalid.new(e.message)
   end

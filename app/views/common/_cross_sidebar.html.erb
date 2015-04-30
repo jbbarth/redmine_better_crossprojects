@@ -33,7 +33,7 @@
 <% end -%>
 
 <% if User.current.allowed_to?(:view_time_entries, nil, :global => true) \
-  && EnabledModule.first(:conditions => {:name => "time_tracking"}) %>
+  && EnabledModule.where(:name => "time_tracking").first %>
 <h3><%=l(:label_time_entry_plural)%></h3>
 <%= link_to(l(:label_overall_spent_time), time_entries_path) %><br />
 <% end -%>
