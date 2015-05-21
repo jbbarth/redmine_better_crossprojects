@@ -34,6 +34,10 @@ module QueriesHelper
         else
           value = ""
         end
+      when /function_(\d+)$/
+        if organizations_map[project.id.to_s] && organizations_map[project.id.to_s][column.name.to_s]
+          value = organizations_map[project.id.to_s][column.name.to_s].uniq.join(', ').html_safe
+        end
       else
         value = column.value(project)
     end
