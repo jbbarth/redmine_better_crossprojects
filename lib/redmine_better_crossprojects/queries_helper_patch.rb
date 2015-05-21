@@ -48,18 +48,26 @@ module QueriesHelper
     end
   end
 
-  def csv_value(column, project, value)
-    case value.class.name
-      when 'Time'
-        format_time(value)
-      when 'Date'
-        format_date(value)
-      when 'Float'
-        sprintf("%.2f", value).gsub('.', l(:general_csv_decimal_separator))
-      when 'Organization'
-        value.direction_organization.name
-      else
-        value.to_s
+  # TODO - Do not override the entire method!
+  def csv_value(column, object, value)
+    format_object(value, false) do |value|
+      case value.class.name
+        when 'Float'
+          sprintf("%.2f", value).gsub('.', l(:general_csv_decimal_separator))
+        when 'IssueRelation'
+          other = value.other_issue(object)
+          l(value.label_for(object)) + " ##{other.id}"
+        when 'Issue'
+          if object.is_a?(TimeEntry)
+            "#{value.tracker} ##{value.id}: #{value.subject}"
+          else
+            value.id
+          end
+        when 'Organization'
+          value.direction_organization.name
+        else
+          value
+      end
     end
   end
 
