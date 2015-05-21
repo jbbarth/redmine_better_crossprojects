@@ -5,7 +5,7 @@ class ProjectQuery < Query
   def self.available_columns
     columns = [
       QueryColumn.new(:name, :sortable => "#{Project.table_name}.name", :groupable => false),
-      QueryColumn.new(:parent, :sortable => "#{Project.table_name}.name", :caption => :field_parent),
+      QueryColumn.new(:parent, :sortable => "(SELECT p.name FROM #{Project.table_name} p WHERE #{Project.table_name}.parent_id = p.id)", :caption => :field_parent),
       QueryColumn.new(:status, :sortable => "#{Project.table_name}.status", :groupable => true),
       QueryColumn.new(:is_public, :sortable => "#{Project.table_name}.is_public", :groupable => true),
       QueryColumn.new(:identifier, :sortable => "#{Project.table_name}.identifier", :groupable => false),
