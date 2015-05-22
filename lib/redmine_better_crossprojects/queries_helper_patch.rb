@@ -47,27 +47,15 @@ module QueriesHelper
     end
   end
 
-  # TODO - Do not override the entire method!
-  def csv_value(column, object, value)
-    format_object(value, false) do |value|
-      case value.class.name
-        when 'Float'
-          sprintf("%.2f", value).gsub('.', l(:general_csv_decimal_separator))
-        when 'IssueRelation'
-          other = value.other_issue(object)
-          l(value.label_for(object)) + " ##{other.id}"
-        when 'Issue'
-          if object.is_a?(TimeEntry)
-            "#{value.tracker} ##{value.id}: #{value.subject}"
-          else
-            value.id
-          end
-        when 'Organization'
-          value.direction_organization.name
-        else
-          value
+  unless instance_methods.include?(:csv_value_with_better_crossprojects)
+    def csv_value_with_better_crossprojects(column, object, value)
+      if value.class.name == 'Organization'
+        value.direction_organization.name
+      else
+        csv_value_without_better_crossprojects(column, object, value)
       end
     end
+    alias_method_chain :csv_value, :better_crossprojects
   end
 
 end
