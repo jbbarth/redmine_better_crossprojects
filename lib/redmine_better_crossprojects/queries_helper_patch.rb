@@ -1,7 +1,6 @@
 require_dependency 'queries_helper'
 
 module QueriesHelper
-  include IssuesHelper
 
   unless instance_methods.include?(:column_value_with_better_crossprojects)
     def column_value_with_better_crossprojects(column, issue, value)
