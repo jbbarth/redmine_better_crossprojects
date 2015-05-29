@@ -45,10 +45,10 @@ describe ProjectsController, type: :controller do
     get :index, :set_filter => 1
     response.should be_success
     assert_template 'index'
-    assert_not_nil assigns(:projects)
+    refute_nil assigns(:projects)
 
     query = assigns(:query)
-    assert_not_nil query
+    refute_nil query
     # default filter
     assert_equal({'status' => {:operator => '=', :values => ['1']}}, query.filters)
   end
@@ -60,10 +60,10 @@ describe ProjectsController, type: :controller do
         :v => {'is_public' => ['0']}
     response.should be_success
     assert_template 'index'
-    assert_not_nil assigns(:projects)
+    refute_nil assigns(:projects)
 
     query = assigns(:query)
-    assert_not_nil query
+    refute_nil query
     assert_equal({'is_public' => {:operator => '=', :values => ['0']}}, query.filters)
   end
 
@@ -71,10 +71,10 @@ describe ProjectsController, type: :controller do
     get :index, :set_filter => 1, :fields => ['']
     response.should be_success
     assert_template 'index'
-    assert_not_nil assigns(:projects)
+    refute_nil assigns(:projects)
 
     query = assigns(:query)
-    assert_not_nil query
+    refute_nil query
     # no filter
     assert_equal({}, query.filters)
   end
@@ -83,7 +83,7 @@ describe ProjectsController, type: :controller do
     get :index, :query_id => @query_1.id
     response.should be_success
     assert_template 'index'
-    assert_not_nil assigns(:projects)
+    refute_nil assigns(:projects)
     assert_nil assigns(:project_count_by_group)
   end
 
@@ -91,8 +91,8 @@ describe ProjectsController, type: :controller do
     get :index, :query_id => @query_2.id
     response.should be_success
     assert_template 'index'
-    assert_not_nil assigns(:projects)
-    assert_not_nil assigns(:project_count_by_group)
+    refute_nil assigns(:projects)
+    refute_nil assigns(:project_count_by_group)
   end
 
   it "should index with query id should set session query" do
@@ -113,14 +113,14 @@ describe ProjectsController, type: :controller do
 
     get :index
     response.should be_success
-    assert_not_nil assigns(:query)
+    refute_nil assigns(:query)
     assigns(:query).id.should == q.id
   end
 
   it "should index csv with all columns" do
     get :index, :format => 'csv', :columns => 'all'
     response.should be_success
-    assert_not_nil assigns(:projects)
+    refute_nil assigns(:projects)
     @response.content_type.should == 'text/csv; header=present'
     lines = response.body.chomp.split("\n")
     lines[0].split(',').size.should == assigns(:query).available_inline_columns.size
@@ -129,8 +129,8 @@ describe ProjectsController, type: :controller do
   it "should index pdf with query grouped by status" do
     get :index, :query_id => @query_2.id, :format => 'pdf'
     response.should be_success
-    assert_not_nil assigns(:projects)
-    assert_not_nil assigns(:project_count_by_group)
+    refute_nil assigns(:projects)
+    refute_nil assigns(:project_count_by_group)
     @response.content_type.should == 'application/pdf'
   end
 

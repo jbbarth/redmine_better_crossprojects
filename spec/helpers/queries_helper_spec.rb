@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'redmine_better_crossprojects/queries_helper_patch'
 
 describe QueriesHelper, type: :helper do
 
@@ -7,4 +8,5 @@ describe QueriesHelper, type: :helper do
     content = column_content(QueryColumn.new(:parent), query.projects.select{|e| e.parent_id == 1}.first)
     expect(content).to have_link("eCookbook")
   end
+
 end

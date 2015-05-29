@@ -15,7 +15,7 @@ describe "ProjectQuery" do
   it "should project name filter in queries" do
     query = ProjectQuery.new(:name => '_')
     project_name_filter = query.available_filters["id"]
-    assert_not_nil project_name_filter
+    refute_nil project_name_filter
     project_ids = project_name_filter[:values].map{|p| p[1]}
     assert project_ids.include?("1")  #public project
     assert !project_ids.include?("2") #private project user cannot see
@@ -85,7 +85,7 @@ describe "ProjectQuery" do
     User.current = User.find(1)
     query = ProjectQuery.new(:name => '_', :filters => { 'member_id' => {:operator => '=', :values => ['me']}})
     result = find_projects_with_query(query)
-    assert_not_nil result
+    refute_nil result
     assert !result.empty?
   end
 
