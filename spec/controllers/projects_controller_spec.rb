@@ -1,7 +1,7 @@
 require 'spec_helper'
 require 'redmine_better_crossprojects/projects_controller_patch'
 
-describe ProjectsController do
+describe ProjectsController, type: :controller do
   render_views
 
   # In this test we don't use fixtures voluntarily for ProjectQuery's
