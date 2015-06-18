@@ -10,25 +10,25 @@ describe ProjectSummary do
   describe "#project_ids" do
     it "gives access to project_ids" do
       project_ids = double
-      ProjectSummary.new(project_ids).project_ids.should == project_ids
+      expect(ProjectSummary.new(project_ids).project_ids).to eq project_ids
     end
   end
 
   describe "#users_count" do
     it "aggregates users by project" do
-      summary.users_count[5].should == Project.find(5).users.count
+      expect(summary.users_count[5]).to eq Project.find(5).users.count
     end
   end
 
   describe "#issues_open_count" do
     it "aggregates open issues by project" do
-      summary.issues_open_count[5].should == Project.find(5).issues.open.count
+      expect(summary.issues_open_count[5]).to eq Project.find(5).issues.open.count
     end
   end
 
   describe "#issues_closed_count" do
     it "aggregates closed issues by project" do
-      summary.issues_closed_count[1].should == Project.find(1).issues.open(false).count
+      expect(summary.issues_closed_count[1]).to eq Project.find(1).issues.open(false).count
     end
   end
 
@@ -44,7 +44,7 @@ describe ProjectSummary do
     it "initializes statistics even if project has no records" do
       p = Project.create!(:name => "Project X", :identifier => "p-x")
       summary = ProjectSummary.new([p.id])
-      summary.activity_statistics[p.id].uniq.should == [0]
+      expect(summary.activity_statistics[p.id].uniq).to eq [0]
     end
 
     it "builds statistics based upon activity_records" do
@@ -53,7 +53,7 @@ describe ProjectSummary do
         [double(:project_id => 1, :created_on => Date.today),
          double(:project_id => 1, :created_on => Date.today)]
       }
-      summary.activity_statistics[1].last.should == 2
+      expect(summary.activity_statistics[1].last).to eq 2
     end
   end
 end

@@ -9,7 +9,7 @@ describe "ProjectQuery" do
 
   it "should available filters should be ordered" do
     query = ProjectQuery.new
-    query.available_filters.keys.index('id').should == 0
+    expect(query.available_filters.keys.index('id')).to eq 0
   end
 
   it "should project name filter in queries" do
@@ -57,8 +57,8 @@ describe "ProjectQuery" do
     query = ProjectQuery.new(:name => '_')
     query.add_filter("cf_#{f.id}", '=', ['12'])
     projects = find_projects_with_query(query)
-    projects.size.should == 1
-    projects.first.id.should == 2
+    expect(projects.size).to eq 1
+    expect(projects.first.id).to eq 2
   end
 
   it "should operator is not on multi list custom field" do

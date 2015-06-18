@@ -99,7 +99,7 @@ describe ProjectsController, type: :controller do
     get :index, :query_id => @query_1.id
     expect(response).to be_success
     assert_kind_of Hash, session[:project_query]
-    session[:project_query][:id].should == @query_1.id
+    expect(session[:project_query][:id]).to eq @query_1.id
   end
 
   it "should index with invalid query id should respond 404" do
@@ -114,16 +114,16 @@ describe ProjectsController, type: :controller do
     get :index
     expect(response).to be_success
     refute_nil assigns(:query)
-    assigns(:query).id.should == q.id
+    expect(assigns(:query).id).to eq q.id
   end
 
   it "should index csv with all columns" do
     get :index, :format => 'csv', :columns => 'all'
     expect(response).to be_success
     refute_nil assigns(:projects)
-    @response.content_type.should == 'text/csv; header=present'
+    expect(@response.content_type).to eq 'text/csv; header=present'
     lines = response.body.chomp.split("\n")
-    lines[0].split(',').size.should == assigns(:query).available_inline_columns.size
+    expect(lines[0].split(',').size).to eq assigns(:query).available_inline_columns.size
   end
 
   it "should index pdf with query grouped by status" do
@@ -131,7 +131,7 @@ describe ProjectsController, type: :controller do
     expect(response).to be_success
     refute_nil assigns(:projects)
     refute_nil assigns(:project_count_by_group)
-    @response.content_type.should == 'application/pdf'
+    expect(@response.content_type).to eq 'application/pdf'
   end
 
   it "should index with columns" do
@@ -142,12 +142,12 @@ describe ProjectsController, type: :controller do
     # query should use specified columns
     query = assigns(:query)
     assert_kind_of ProjectQuery, query
-    query.column_names.map(&:to_s).should == columns
+    expect(query.column_names.map(&:to_s)).to eq columns
 
     # columns should be stored in session
     assert_kind_of Hash, session[:project_query]
     assert_kind_of Array, session[:project_query][:column_names]
-    session[:project_query][:column_names].map(&:to_s).should == columns
+    expect(session[:project_query][:column_names].map(&:to_s)).to eq columns
   end
 
 end
