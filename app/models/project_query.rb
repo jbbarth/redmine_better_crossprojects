@@ -190,7 +190,7 @@ class ProjectQuery < Query
 
   # Returns the project count
   def project_count
-    Project.visible.count(:conditions => statement)
+    Project.visible.where(statement)
   rescue ::ActiveRecord::StatementInvalid => e
     raise StatementInvalid.new(e.message)
   end
@@ -201,7 +201,11 @@ class ProjectQuery < Query
     if grouped?
       begin
         # Rails3 will raise an (unexpected) RecordNotFound if there's only a nil group value
-        r = Project.count(:joins => joins_for_order_statement(group_by_statement), :group => group_by_statement, :conditions => statement)
+        r = Project.
+            joins(joins_for_order_statement(group_by_statement)).
+            where(statement).
+            group(group_by_statement).
+            count
       rescue ActiveRecord::RecordNotFound
         r = {nil => project_count}
       end
