@@ -14,7 +14,7 @@ Redmine::Plugin.register :redmine_better_crossprojects do
   author 'Jean-Baptiste BARTH'
   author_url 'mailto:jeanbaptiste.barth@gmail.com'
   requires_redmine :version_or_higher => '2.6.0'
-  requires_redmine_plugin :redmine_base_select2, :version_or_higher => '0.0.1'
+  requires_redmine_plugin :redmine_base_select2, :version_or_higher => '4.0.0'
   requires_redmine_plugin :redmine_base_deface, :version_or_higher => '0.0.1'
   requires_redmine_plugin :redmine_base_rspec, :version_or_higher => '0.0.4' if Rails.env.test?
   version '0.4'

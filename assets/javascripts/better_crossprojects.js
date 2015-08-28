@@ -32,10 +32,10 @@ function toggleAllProjectsRowGroups(el) {
 
 $(function() {
   //focus on search field on load
-  $("#filter-by-values").focus();
+  $("#filter-by-tracker").focus();
 
   //filter projects depending on input value
-  $("#filter-by-values").on("keyup", function() {
+  $("#filter-by-tracker").on("keyup", function() {
 
       var visible_projects = [];
 

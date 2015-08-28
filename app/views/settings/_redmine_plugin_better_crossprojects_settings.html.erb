@@ -22,18 +22,20 @@
   </tr>
   </tbody>
 </table>
+
 <script type="text/javascript">
   $(function() {
     var data = [];
     <% all_available_columns.each do |c| %>
       data.push(
-          { 'id': '<%= c.name %>',
-            'text': '<%= escape_javascript(raw c.caption) %>'
+          { id: '<%= c.name %>',
+            text: '<%= escape_javascript(raw c.caption) %>'
           }
       );
     <% end %>
     $('#settings_default_columns').select2({
-      tags: data,
+      multiple: true,
+      data: data,
       containerCss: {minWidth: '500px'}
     });
   });
