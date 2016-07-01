@@ -8,8 +8,6 @@ Everything is explained here: http://www.redmine.org/issues/5920
 
 ## Installation
 
-**This plugin is only compatible with Redmine 2.3.x ! See #7 for more informations about 2.4+ incompatibilities.**
-
 Please apply general instructions for plugins [here](http://www.redmine.org/wiki/redmine/Plugins).
 
 Note that this plugin now depends on:
@@ -25,6 +23,7 @@ Then execute:
 
 And finally restart your Redmine instance.
 
+This plugin is fully compatible with Redmine 2.x and 3.x. Please feel free to report any bug you encounter.
 
 ## Contributing
 
