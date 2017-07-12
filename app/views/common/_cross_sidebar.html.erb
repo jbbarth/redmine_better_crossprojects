@@ -14,8 +14,8 @@
 <% end -%>
 <%= call_hook(:view_cross_sidebar_issues_bottom) %>
 
-<% if defined?(sidebar_queries) && sidebar_queries.present? -%>
-  <% public_queries, private_queries = sidebar_queries.partition{|q| q.is_public?} %>
+<% if defined?(sidebar_queries) && sidebar_queries(IssueQuery, @project).present? -%>
+  <% public_queries, private_queries = sidebar_queries(IssueQuery, @project).partition{|q| q.is_public?} %>
   <% if private_queries.any? -%>
     <h4><%= l(:label_my_queries) %></h4>
     <%= content_tag(:div, :class => 'subsection') do %>
