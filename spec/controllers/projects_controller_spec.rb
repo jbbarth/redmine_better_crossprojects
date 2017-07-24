@@ -25,12 +25,12 @@ describe ProjectsController, type: :controller do
     # create some useful ProjectQuery's
     @query_1 = ProjectQuery.create!(
       :name => "Query1", :user_id => 2,
-      :filters => { :status => { :values => ["1"], :operator => "!" } },
+      :filters => { 'status' => { :values => ["1"], :operator => "!" } },
       :column_names => [ "name", "status" ]
     )
     @query_2 = ProjectQuery.create!(
       :name => "Query2", :user_id => 1,
-      :filters => { :status => { :values => ["1"], :operator => "=" } },
+      :filters => { 'status' => { :values => ["1"], :operator => "=" } },
       :column_names => [], :sort_criteria => [ "name", "desc" ],
       :group_by => "status"
     )
@@ -118,7 +118,7 @@ describe ProjectsController, type: :controller do
   end
 
   it "should index csv with all columns" do
-    get :index, :format => 'csv', :columns => 'all'
+    get :index, :format => 'csv', :c => ['all_inline']
     expect(response).to be_success
     refute_nil assigns(:projects)
     expect(@response.content_type).to eq 'text/csv; header=present'

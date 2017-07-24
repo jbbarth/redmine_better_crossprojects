@@ -3,11 +3,11 @@ require_dependency 'queries_helper'
 module QueriesHelper
 
   unless instance_methods.include?(:column_value_with_better_crossprojects)
-    def column_value_with_better_crossprojects(column, issue, value)
+    def column_value_with_better_crossprojects(column, item, value)
       if column.name == :parent && value.kind_of?(Project)
         value ? (value.visible? ? link_to_project(value) : "##{value.id}") : ''
       else
-        column_value_without_better_crossprojects(column, issue, value)
+        column_value_without_better_crossprojects(column, item, value)
       end
     end
     alias_method_chain :column_value, :better_crossprojects
@@ -39,7 +39,7 @@ module QueriesHelper
             value = organizations_map[project.id.to_s][column.name.to_s].uniq.join(', ').html_safe
           end
         else
-          value = column.value(project)
+          value = column.value_object(project)
       end
       if value.is_a?(Array)
         value.collect {|v| csv_value(column, project, v)}.uniq.compact.join(', ')
