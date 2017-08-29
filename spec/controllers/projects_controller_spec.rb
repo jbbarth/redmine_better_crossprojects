@@ -121,7 +121,7 @@ describe ProjectsController, type: :controller do
     get :index, :format => 'csv', :c => ['all_inline']
     expect(response).to be_success
     refute_nil assigns(:projects)
-    expect(@response.content_type).to eq 'text/csv; header=present'
+    expect(response.content_type).to eq 'text/csv; header=present'
     lines = response.body.chomp.split("\n")
     expect(lines[0].split(',').size).to eq assigns(:query).available_inline_columns.size
   end
