@@ -83,8 +83,8 @@ describe ProjectsController, type: :controller do
     get :index, :query_id => @query_1.id
     expect(response).to be_success
     assert_template 'index'
-    refute_nil assigns(:projects)
-    assert_nil assigns(:project_count_by_group)
+    expect(assigns(:projects)).to_not be_nil
+    expect(assigns(:project_count_by_group)).to be_nil
   end
 
   it "should index with query grouped" do
