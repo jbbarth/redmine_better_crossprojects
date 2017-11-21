@@ -1,6 +1,8 @@
 # English strings go here for Rails i18n
 en:
   label_filters_and_options: Filters and options
+  field: Project
+  field_member: Member
   field_members: Members
   quick_search: Quick search
   field_issues: Issues
