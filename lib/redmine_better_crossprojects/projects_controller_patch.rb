@@ -221,7 +221,7 @@ module Redmine
             end
 
             # fetch row values
-            col_values = fetch_row_values(project, query, level)
+            col_values = fetch_row_values_per_project(project, query, level)
 
             # make new page if it doesn't fit on the current one
             base_y = pdf.get_y
@@ -264,7 +264,7 @@ module Redmine
         end
 
         # fetch row values
-        def fetch_row_values(project, query, level)
+        def fetch_row_values_per_project(project, query, level)
           query.inline_columns.collect do |column|
             s = if column.is_a?(QueryCustomFieldColumn)
                   cv = project.custom_field_values.detect {|v| v.custom_field_id == column.custom_field.id}
