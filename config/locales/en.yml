@@ -10,3 +10,4 @@ en:
   field_organization: Organization
   field_users: Users
   setting_show_description_as_a_column: Show description as a column
+  please_select_less_columns: Please reduce the number of selected columns

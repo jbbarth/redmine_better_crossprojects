@@ -12,6 +12,13 @@ class ProjectsController
   # Lists visible projects
   def index
     retrieve_project_query
+
+    if params[:format] == 'pdf' && @query.column_names.count > 40
+      redirect_to(:back)
+      flash[:error] = l(:please_select_less_columns)
+      return
+    end
+
     @params = params
     @project_count_by_group = @query.project_count_by_group
     sort_init(@query.sort_criteria.empty? ? [['lft']] : @query.sort_criteria)
