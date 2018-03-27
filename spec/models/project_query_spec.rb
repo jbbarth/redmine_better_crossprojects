@@ -68,7 +68,7 @@ describe "ProjectQuery" do
     CustomValue.create!(:custom_field => f, :customized => Project.find(1), :value => 'value2')
     CustomValue.create!(:custom_field => f, :customized => Project.find(3), :value => 'value1')
 
-    query = ProjectQuery.new(:name => '_')
+    query = ProjectQuery.new(:name => '_', column_names: ["id", "name", "cf_#{f.id}"])
     query.add_filter("cf_#{f.id}", '!', ['value1'])
     projects = find_projects_with_query(query)
     assert !projects.map(&:id).include?(1)
@@ -82,7 +82,7 @@ describe "ProjectQuery" do
   end
 
   it "should filter member" do
-    User.current = User.find(1)
+    User.current = User.find(3)
     query = ProjectQuery.new(:name => '_', :filters => { 'member_id' => {:operator => '=', :values => ['me']}})
     result = find_projects_with_query(query)
     refute_nil result

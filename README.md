@@ -10,6 +10,10 @@ Everything is explained here: http://www.redmine.org/issues/5920
 
 Please apply general instructions for plugins [here](http://www.redmine.org/wiki/redmine/Plugins).
 
+Requirements:
+
+    ruby >= 2.1.0
+    
 Note that this plugin now depends on:
 * **redmine_base_select2** which can be found [here](https://github.com/jbbarth/redmine_base_select2)
 * **redmine_base_deface** which can be found [here](https://github.com/jbbarth/redmine_base_deface)
