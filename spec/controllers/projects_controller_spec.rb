@@ -26,7 +26,7 @@ describe ProjectsController, type: :controller do
     @query_1 = ProjectQuery.create!(
       :name => "Query1", :user_id => 2,
       :filters => { 'status' => { :values => ["1"], :operator => "!" } },
-      :column_names => [ "name", "status" ]
+      :column_names => [ "name", "status", "parent" ]
     )
     @query_2 = ProjectQuery.create!(
       :name => "Query2", :user_id => 1,

@@ -67,14 +67,14 @@
         %>
         <%= raw columns.join %>
       </tr>
-      <% @query.block_columns.each do |column|
-        if (text = column_content(column, project)) && text.present? -%>
+      <% @query.block_columns.each do |column| %>
+        <% if (text = column_content(column, project)) && text.present? %>
           <tr class="<%= current_cycle %>">
             <td colspan="<%= @query.inline_columns.size + 1 %>" class="<%= column.css_classes %>"><%= text %></td>
           </tr>
-        <% end -%>
-      <% end -%>
-    <% end -%>
+        <% end %>
+      <% end %>
+    <% end %>
     </tbody>
   </table>
 </div>

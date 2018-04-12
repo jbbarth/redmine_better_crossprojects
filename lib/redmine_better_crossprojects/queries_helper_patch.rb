@@ -1,20 +1,17 @@
 require_dependency 'queries_helper'
 
-module QueriesHelper
+module PluginBetterCrossProjects
+  module QueriesHelper
 
-  unless instance_methods.include?(:column_value_with_better_crossprojects)
-    def column_value_with_better_crossprojects(column, item, value)
+    def column_value(column, item, value)
       if column.name == :parent && value.kind_of?(Project)
         value ? (value.visible? ? link_to_project(value) : "##{value.id}") : ''
       else
-        column_value_without_better_crossprojects(column, item, value)
+        super
       end
     end
-    alias_method_chain :column_value, :better_crossprojects
-  end
 
-  unless instance_methods.include?(:csv_content_with_better_crossprojects)
-    def csv_content_with_better_crossprojects(column, project)
+    def csv_content(column, project)
       case column.name
         when :issues
           value = ""
@@ -47,20 +44,17 @@ module QueriesHelper
         csv_value(column, project, value)
       end
     end
-    alias_method_chain :csv_content, :better_crossprojects
-  end
 
-  unless instance_methods.include?(:csv_value_with_better_crossprojects)
-    def csv_value_with_better_crossprojects(column, object, value)
+    def csv_value(column, object, value)
       if value.class.name == 'Organization'
         value.direction_organization.name
       else
-        csv_value_without_better_crossprojects(column, object, value)
+        super
       end
     end
-    alias_method_chain :csv_value, :better_crossprojects
-  end
 
+  end
 end
 
-
+QueriesHelper.prepend PluginBetterCrossProjects::QueriesHelper
+ActionView::Base.prepend QueriesHelper
