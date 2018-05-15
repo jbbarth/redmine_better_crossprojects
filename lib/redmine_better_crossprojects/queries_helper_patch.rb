@@ -36,7 +36,7 @@ module PluginBetterCrossProjects
             value = organizations_map[project.id.to_s][column.name.to_s].uniq.join(', ').html_safe
           end
         else
-          value = column.value_object(project)
+          return super
       end
       if value.is_a?(Array)
         value.collect {|v| csv_value(column, project, v)}.uniq.compact.join(', ')
@@ -58,3 +58,5 @@ end
 
 QueriesHelper.prepend PluginBetterCrossProjects::QueriesHelper
 ActionView::Base.prepend QueriesHelper
+IssuesController.prepend QueriesHelper
+ProjectsController.prepend QueriesHelper
