@@ -24,7 +24,7 @@
         </tr>
         <% previous_group = group %>
       <% end %>
-      <tr id="project-line-<%= project.id %>" class="<%= cycle('odd', 'even') %> <%= project.css_classes %> <%= url_for(:only_path => true) == url_for(@params) && level > 0 ? "idnt idnt-#{level}" : nil %>"> <!-- indent only if there no query : if basic url = current url -->
+      <tr id="project-line-<%= project.id %>" class="<%= project.css_classes %> <%= url_for(:only_path => true) == url_for(@params) && level > 0 ? "idnt idnt-#{level}" : nil %>"> <!-- indent only if there no query : if basic url = current url -->
         <% columns = []
            @query.inline_columns.map do |column|
              additionnal_class = ""
@@ -41,8 +41,6 @@
                  end
                when :activity
                  column_content = "<span class=barchart></span>"
-               when :issues
-                 column_content = "<span></span>"
                when :users
                  column_content = "<span></span>"
                when :name
@@ -107,12 +105,15 @@
   <script type=text/javascript>
     <% summary = ProjectSummary.new(Project.pluck(:id)) %>
     cache = {
-    <% projects.each do |project| %>
-    <%= project.id %>: { stats: "<%= summary.activity_statistics[project.id].join(",") %>",
-        users: <%= summary.users_count[project.id].to_i %>,
-        open_issues: <%= summary.issues_open_count[project.id].to_i %>,
-        closed_issues: <%= summary.issues_closed_count[project.id].to_i %> },
-      <% end %>
+      <%= projects.map do |project|
+        "#{project.id}:{
+            stats:'#{summary.activity_statistics[project.id].join(",")}',
+            users: #{summary.users_count[project.id].to_i},
+            open_issues: #{summary.issues_open_count[project.id].to_i},
+            closed_issues: #{summary.issues_closed_count[project.id].to_i}
+          }
+        "
+      end.join(', ').html_safe %>
     }
     $(function() {
       var $p

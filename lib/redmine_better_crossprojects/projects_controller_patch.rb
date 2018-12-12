@@ -19,7 +19,7 @@ class ProjectsController
       return
     end
 
-    @params = params
+    @params = request.params
     @project_count_by_group = @query.project_count_by_group
     sort_init(@query.sort_criteria.empty? ? [['lft']] : @query.sort_criteria)
     sort_update(params['sort'].nil? ? ["lft"] : @query.sortable_columns)

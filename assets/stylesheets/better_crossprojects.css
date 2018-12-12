@@ -6,7 +6,7 @@ tr.project.idnt td.name span { background:none; }
 .projects-list .even, .projects-list .even+.even-odd-linked { background-color:#f8f9fa; }
 .projects-list .project-description { color:#666; margin-left:16px; margin-bottom:10px; font-size:90%; }
 .projects-list .membership, .projects-list .issues, .projects-list .users { text-align:center; font-size:90%; color:#888; width:100px; }
-.projects-list .activity { width:160px; padding:0 5px !important; }
+.projects-list .activity { width:160px; }
 .projects-list .activity .barchart { display:none; }
 .projects-list .activity canvas { border-bottom:1px solid #e8e8e8; margin-bottom:-12px; }
 .projects-list .am-i-member { white-space:nowrap; }
