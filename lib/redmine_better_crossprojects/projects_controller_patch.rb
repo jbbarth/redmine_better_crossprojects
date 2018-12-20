@@ -13,7 +13,7 @@ class ProjectsController
   def index
     retrieve_project_query
 
-    if params[:format] == 'pdf' && @query.column_names.count > 40
+    if params[:format] == 'pdf' && @query.column_names && @query.column_names.count > 40
       redirect_to(:back)
       flash[:error] = l(:please_select_less_columns)
       return
@@ -26,7 +26,7 @@ class ProjectsController
     @query.sort_criteria = sort_criteria.to_a
 
     query_options = {:order => sort_clause}
-    if @query.inline_columns.any?{|col|col.is_a?(QueryCustomFieldColumn)}
+    if @query.inline_columns.any? {|col| col.is_a?(QueryCustomFieldColumn)}
       query_options.merge!(:include => [:custom_values])
     end
     @projects = @query.projects(query_options)
@@ -41,17 +41,17 @@ class ProjectsController
       format.html {
         render :template => 'projects/index'
       }
-      format.api  {
+      format.api {
         @offset, @limit = api_offset_and_limit
         @project_count = @projects.size
         @projects ||= Project.visible.offset(@offset).limit(@limit).order('lft').all
       }
-      format.atom { render_feed(@projects, :title => "#{Setting.app_title}: #{l(:label_project_plural)}") }
-      format.csv  {
+      format.atom {render_feed(@projects, :title => "#{Setting.app_title}: #{l(:label_project_plural)}")}
+      format.csv {
         # remove_hidden_projects
         send_data query_to_csv(@projects, @query, params[:csv]), :type => 'text/csv; header=present', :filename => 'projects.csv'
       }
-      format.pdf  {
+      format.pdf {
         remove_hidden_projects
         send_data projects_to_pdf(@projects, @query), :type => 'application/pdf', :filename => 'projects.pdf'
       }
@@ -63,7 +63,7 @@ class ProjectsController
   def remove_hidden_projects
     if params[:visible_projects].present?
       visible_ids = params['visible_projects'].split(",").map(&:to_i)
-      @projects.select!{ |p| p.id.in?(visible_ids) }
+      @projects.select! {|p| p.id.in?(visible_ids)}
     end
   end
 
@@ -81,6 +81,7 @@ class ProjectsController
       members_by_project_map
     end
   end
+
   helper_method :members_map
 
   def organizations_map
@@ -111,17 +112,18 @@ class ProjectsController
           unless map[record["project_id"]]
             map[record["project_id"]] = {}
           end
-          unless map[record["project_id"]]['function_'+record["function_id"]]
-            map[record["project_id"]]['function_'+record["function_id"]] = []
+          unless map[record["project_id"]]['function_' + record["function_id"]]
+            map[record["project_id"]]['function_' + record["function_id"]] = []
           end
-          map[record["project_id"]]['function_'+record["function_id"]] << orgas_fullnames[record["id"]]
-          map[record["project_id"]]['function_'+record["function_id"]] << orgas_fullnames[record["id"]]
+          map[record["project_id"]]['function_' + record["function_id"]] << orgas_fullnames[record["id"]]
+          map[record["project_id"]]['function_' + record["function_id"]] << orgas_fullnames[record["id"]]
         end
       end
 
       map
     end
   end
+
   helper_method :organizations_map
 
   def directions_map
@@ -142,190 +144,32 @@ class ProjectsController
       map
     end
   end
+
   helper_method :directions_map
 
   private
 
-    def retrieve_project_query
-      if !params[:query_id].blank?
-        @query = ProjectQuery.find(params[:query_id])
-        @query.project = @project
-        session[:project_query] = {:id => @query.id}
-        sort_clear
-      elsif api_request? || params[:set_filter] || session[:project_query].nil?
-        # Give it a name, required to be valid
-        @query = ProjectQuery.new(:name => "_")
-        @query.project = @project
-        @query.build_from_params(params)
-        session[:project_query] = {:filters => @query.filters, :group_by => @query.group_by, :column_names => @query.column_names}
-      else
-        # retrieve from session
-        @query = ProjectQuery.find_by_id(session[:project_query][:id]) if session[:project_query][:id]
-        @query ||= ProjectQuery.new(:name => "_", :filters => session[:project_query][:filters], :group_by => session[:project_query][:group_by], :column_names => session[:project_query][:column_names])
-      end
-    end
-end
-
-
-module Redmine
-  module Export
-    module PDF
-      module IssuesPdfHelper
-
-        # Returns a PDF string of a list of projects
-        def projects_to_pdf(projects, query)
-
-          #do not display the "Activity" and "Issues" columns in PDF output
-          remove_column(query, :activity)
-          remove_column(query, :issues)
-
-          pdf = ITCPDF.new(current_language, "L")
-          title = query.new_record? ? l(:label_project_plural) : query.name
-          pdf.set_title(title)
-          pdf.alias_nb_pages
-          pdf.footer_date = format_date(Date.today)
-          pdf.set_auto_page_break(false)
-          pdf.add_page("L")
-
-          # Landscape A4 = 210 x 297 mm
-          page_height   = pdf.get_page_height # 210
-          page_width    = pdf.get_page_width  # 297
-          left_margin   = pdf.get_original_margins['left'] # 10
-          right_margin  = pdf.get_original_margins['right'] # 10
-          bottom_margin = pdf.get_footer_margin
-          row_height    = 4
-
-          # column widths
-          table_width = page_width - right_margin - left_margin
-          col_width = []
-          unless query.inline_columns.empty?
-            col_width = calc_col_width(projects, query, table_width, pdf)
-            table_width = col_width.inject(0) {|s,v| s += v}
-          end
-
-          # use full width if the description is displayed
-          if table_width > 0 && query.has_column?(:description)
-            col_width = col_width.map {|w| w * (page_width - right_margin - left_margin) / table_width}
-            table_width = col_width.inject(0) {|s,v| s += v}
-          end
-
-          # title
-          pdf.SetFontStyle('B',11)
-          pdf.RDMCell(190,10, title)
-          pdf.ln
-          render_table_header(pdf, query, col_width, row_height, table_width)
-          previous_group = false
-          ProjectQuery.unsorted_project_tree(projects) do |project, level|
-            if query.grouped? &&
-                (group = query.group_by_column.value(project)) != previous_group
-              pdf.SetFontStyle('B',10)
-              group_label = group.blank? ? 'None' : group.to_s.dup
-              group_label << " (#{query.project_count_by_group[group]})"
-              pdf.bookmark group_label, 0, -1
-              pdf.RDMCell(table_width, row_height * 2, group_label, 1, 1, 'L')
-              pdf.SetFontStyle('',8)
-              previous_group = group
-            end
-
-            # fetch row values
-            col_values = fetch_row_values_per_project(project, query, level)
-
-            # make new page if it doesn't fit on the current one
-            base_y = pdf.get_y
-            max_height = get_issues_to_pdf_write_cells(pdf, col_values, col_width)
-            space_left = page_height - base_y - bottom_margin
-            if max_height > space_left
-              pdf.add_page("L")
-              render_table_header(pdf, query, col_width, row_height, table_width)
-              base_y = pdf.get_y
-            end
-
-            # write the cells on page
-            issues_to_pdf_write_cells(pdf, col_values, col_width, max_height)
-            pdf.set_y(base_y + max_height)
-
-            if !ProjectQuery.show_description_as_a_column? && query.has_column?(:description) && project.description?
-              pdf.set_x(10)
-              pdf.set_auto_page_break(true, bottom_margin)
-              pdf.RDMwriteHTMLCell(0, 5, 10, '', project.description.to_s, project.attachments, "LRBT")
-              pdf.set_auto_page_break(false)
-            end
-          end
-
-          if projects.size == Setting.issues_export_limit.to_i
-            pdf.SetFontStyle('B',10)
-            pdf.RDMCell(0, row_height, '...')
-          end
-          pdf.output
-        end
-
-        def remove_column(query, column_name)
-          deleted_column = nil
-          query.columns.each do |c|
-            if c.is_a?(QueryColumn) && c.name == column_name
-              deleted_column = c
-              break
-            end
-          end
-          query.available_columns.delete(deleted_column) if deleted_column
-        end
-
-        # fetch row values
-        def fetch_row_values_per_project(project, query, level)
-          query.inline_columns.collect do |column|
-            s = if column.is_a?(QueryCustomFieldColumn)
-                  cv = project.custom_field_values.detect {|v| v.custom_field_id == column.custom_field.id}
-                  show_value(cv, false)
-                else
-                  case column.name
-                    when :organizations
-                      value = directions_map[project.id]
-                    when :role
-                      if @memberships[project.id].present?
-                        value = @memberships[project.id].map(&:name).join(", ")
-                      else
-                        value = l(:label_role_non_member)
-                      end
-                    when :members
-                      value = members_map[project.id]
-                    when :users
-                      value = project.send(column.name).size
-                    when /role_(\d+)$/
-                      if organizations_map[project.id.to_s] && organizations_map[project.id.to_s][$1]
-                        value = organizations_map[project.id.to_s][$1].join(', ')
-                      else
-                        value = ""
-                      end
-                    when /function_(\d+)$/
-                      if organizations_map[project.id.to_s] && organizations_map[project.id.to_s][column.name.to_s]
-                        value = organizations_map[project.id.to_s][column.name.to_s].uniq.join(', ').html_safe
-                      end
-                    else
-                      value = project.send(column.name)
-                  end
-
-                  if column.name == :subject
-                    value = "  " * level + value
-                  end
-                  if value.is_a?(Date)
-                    format_date(value)
-                  elsif value.is_a?(Time)
-                    format_time(value)
-                  elsif value.class.name == 'Array'
-                    value.size
-                  else
-                    value # = ""
-                  end
-                end
-            s.to_s
-          end
-        end
-
-      end
+  def retrieve_project_query
+    if !params[:query_id].blank?
+      @query = ProjectQuery.find(params[:query_id])
+      @query.project = @project
+      session[:project_query] = {:id => @query.id}
+      sort_clear
+    elsif api_request? || params[:set_filter] || session[:project_query].nil?
+      # Give it a name, required to be valid
+      @query = ProjectQuery.new(:name => "_")
+      @query.project = @project
+      @query.build_from_params(params)
+      session[:project_query] = {:filters => @query.filters, :group_by => @query.group_by, :column_names => @query.column_names}
+    else
+      # retrieve from session
+      @query = ProjectQuery.find_by_id(session[:project_query][:id]) if session[:project_query][:id]
+      @query ||= ProjectQuery.new(:name => "_", :filters => session[:project_query][:filters], :group_by => session[:project_query][:group_by], :column_names => session[:project_query][:column_names])
     end
   end
 end
 
 class Project
-  def activity; end
+  def activity;
+  end
 end

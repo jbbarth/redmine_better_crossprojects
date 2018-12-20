@@ -115,6 +115,10 @@ class ProjectQuery < Query
     raise StatementInvalid.new(e.message)
   end
 
+  def base_scope
+    Project.visible.where(statement)
+  end
+
   def sql_for_member_id_field(field, operator, value)
     if value.delete('me')
       value.push User.current.id.to_s

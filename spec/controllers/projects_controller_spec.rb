@@ -24,15 +24,15 @@ describe ProjectsController, type: :controller do
     User.current = nil
     # create some useful ProjectQuery's
     @query_1 = ProjectQuery.create!(
-      :name => "Query1", :user_id => 2,
-      :filters => { 'status' => { :values => ["1"], :operator => "!" } },
-      :column_names => [ "name", "status", "parent" ]
+        :name => "Query1", :user_id => 2,
+        :filters => {'status' => {:values => ["1"], :operator => "!"}},
+        :column_names => ["name", "status", "parent"]
     )
     @query_2 = ProjectQuery.create!(
-      :name => "Query2", :user_id => 1,
-      :filters => { 'status' => { :values => ["1"], :operator => "=" } },
-      :column_names => [], :sort_criteria => [ "name", "desc" ],
-      :group_by => "status"
+        :name => "Query2", :user_id => 1,
+        :filters => {'status' => {:values => ["1"], :operator => "="}},
+        :column_names => [], :sort_criteria => ["name", "desc"],
+        :group_by => "status"
     )
   end
 
@@ -42,8 +42,8 @@ describe ProjectsController, type: :controller do
   end
 
   it "should index with default filter" do
-    get :index, :set_filter => 1
-    expect(response).to be_success
+    get :index, params: {:set_filter => 1}
+    expect(response).to be_successful
     assert_template 'index'
     refute_nil assigns(:projects)
 
@@ -54,11 +54,11 @@ describe ProjectsController, type: :controller do
   end
 
   it "should index with filter" do
-    get :index, :set_filter => 1,
-        :f => ['is_public'],
-        :op => {'is_public' => '='},
-        :v => {'is_public' => ['0']}
-    expect(response).to be_success
+    get :index, params: {:set_filter => 1,
+                         :f => ['is_public'],
+                         :op => {'is_public' => '='},
+                         :v => {'is_public' => ['0']}}
+    expect(response).to be_successful
     assert_template 'index'
     refute_nil assigns(:projects)
 
@@ -68,8 +68,8 @@ describe ProjectsController, type: :controller do
   end
 
   it "should index with empty filters" do
-    get :index, :set_filter => 1, :fields => ['']
-    expect(response).to be_success
+    get :index, params: {:set_filter => 1, :fields => ['']}
+    expect(response).to be_successful
     assert_template 'index'
     refute_nil assigns(:projects)
 
@@ -80,30 +80,30 @@ describe ProjectsController, type: :controller do
   end
 
   it "should index with query" do
-    get :index, :query_id => @query_1.id
-    expect(response).to be_success
+    get :index, params: {:query_id => @query_1.id}
+    expect(response).to be_successful
     assert_template 'index'
     expect(assigns(:projects)).to_not be_nil
     expect(assigns(:project_count_by_group)).to be_nil
   end
 
   it "should index with query grouped" do
-    get :index, :query_id => @query_2.id
-    expect(response).to be_success
+    get :index, params: {:query_id => @query_2.id}
+    expect(response).to be_successful
     assert_template 'index'
     refute_nil assigns(:projects)
     refute_nil assigns(:project_count_by_group)
   end
 
   it "should index with query id should set session query" do
-    get :index, :query_id => @query_1.id
-    expect(response).to be_success
+    get :index, params: {:query_id => @query_1.id}
+    expect(response).to be_successful
     assert_kind_of Hash, session[:project_query]
     expect(session[:project_query][:id]).to eq @query_1.id
   end
 
   it "should index with invalid query id should respond 404" do
-    get :index, :query_id => 999
+    get :index, params: {:query_id => 999}
     assert_response 404
   end
 
@@ -112,14 +112,14 @@ describe ProjectsController, type: :controller do
     @request.session[:project_query] = {:id => q.id}
 
     get :index
-    expect(response).to be_success
+    expect(response).to be_successful
     refute_nil assigns(:query)
     expect(assigns(:query).id).to eq q.id
   end
 
   it "should index csv with all columns" do
-    get :index, :format => 'csv', :c => ['all_inline']
-    expect(response).to be_success
+    get :index, params: {:format => 'csv', :c => ['all_inline']}
+    expect(response).to be_successful
     refute_nil assigns(:projects)
     expect(response.content_type).to eq 'text/csv; header=present'
     lines = response.body.chomp.split("\n")
@@ -127,8 +127,8 @@ describe ProjectsController, type: :controller do
   end
 
   it "should index pdf with query grouped by status" do
-    get :index, :query_id => @query_2.id, :format => 'pdf'
-    expect(response).to be_success
+    get :index, params: {:query_id => @query_2.id, :format => 'pdf'}
+    expect(response).to be_successful
     refute_nil assigns(:projects)
     refute_nil assigns(:project_count_by_group)
     expect(@response.content_type).to eq 'application/pdf'
@@ -136,8 +136,8 @@ describe ProjectsController, type: :controller do
 
   it "should index with columns" do
     columns = ['name', 'status', 'created_on']
-    get :index, :set_filter => 1, :c => columns
-    expect(response).to be_success
+    get :index, params: {:set_filter => 1, :c => columns}
+    expect(response).to be_successful
 
     # query should use specified columns
     query = assigns(:query)

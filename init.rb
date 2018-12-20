@@ -2,9 +2,10 @@ require 'redmine'
 
 ActiveSupport::Reloader.to_prepare do
   require_dependency 'redmine_better_crossprojects/projects_controller_patch' unless Rails.env.test?
-  require_dependency 'redmine_better_crossprojects/custom_field_patch'
+  # require_dependency 'redmine_better_crossprojects/custom_field_patch' # TODO Remove this file if everything works
   require_dependency 'redmine_better_crossprojects/queries_helper_patch'
   require_dependency 'redmine_better_crossprojects/queries_controller_patch'
+  require_dependency 'redmine_better_crossprojects/issues_pdf_helper_patch'
 end
 
 Redmine::Plugin.register :redmine_better_crossprojects do
@@ -18,7 +19,7 @@ Redmine::Plugin.register :redmine_better_crossprojects do
   requires_redmine_plugin :redmine_base_deface, :version_or_higher => '0.0.1'
   requires_redmine_plugin :redmine_base_rspec, :version_or_higher => '0.0.4' if Rails.env.test?
   version '3.4.2'
-  settings :default => { 'default_columns' => "name,role,users,issues,activity", 'show_description_as_a_column' => true },
+  settings :default => {'default_columns' => "name,role,users,issues,activity", 'show_description_as_a_column' => true},
            :partial => 'settings/redmine_plugin_better_crossprojects_settings'
 end
 
