@@ -112,11 +112,11 @@ class ProjectsController
           unless map[record["project_id"]]
             map[record["project_id"]] = {}
           end
-          unless map[record["project_id"]]['function_' + record["function_id"]]
-            map[record["project_id"]]['function_' + record["function_id"]] = []
+          unless map[record["project_id"]]["function_#{record["function_id"]}"]
+            map[record["project_id"]]["function_#{record["function_id"]}"] = []
           end
-          map[record["project_id"]]['function_' + record["function_id"]] << orgas_fullnames[record["id"]]
-          map[record["project_id"]]['function_' + record["function_id"]] << orgas_fullnames[record["id"]]
+          map[record["project_id"]]["function_#{record["function_id"]}"] << orgas_fullnames[record["id"]]
+          map[record["project_id"]]["function_#{record["function_id"]}"] << orgas_fullnames[record["id"]]
         end
       end
 
