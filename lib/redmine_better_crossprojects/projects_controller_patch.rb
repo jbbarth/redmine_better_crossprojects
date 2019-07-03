@@ -49,7 +49,7 @@ class ProjectsController
       format.atom {render_feed(@projects, :title => "#{Setting.app_title}: #{l(:label_project_plural)}")}
       format.csv {
         # remove_hidden_projects
-        send_data query_to_csv(@projects, @query, params[:csv]), :type => 'text/csv; header=present', :filename => 'projects.csv'
+        send_data query_to_csv(@projects, @query, params[:csv]), :type => 'text/csv', :filename => 'projects.csv'
       }
       format.pdf {
         remove_hidden_projects
