@@ -89,7 +89,7 @@ class ProjectsController
     @organizations_map ||= Rails.cache.fetch cache_strategy do
       orgas_fullnames = {}
       Organization.all.each do |o|
-        orgas_fullnames[o.id.to_s] = o.fullname
+        orgas_fullnames[o.id] = o.fullname
       end
 
       sql = Organization.select("organizations.id, project_id, role_id").joins(:users => {:members => :member_roles}).order("project_id, role_id, organizations.id").group("project_id, role_id, organizations.id").to_sql
@@ -115,7 +115,6 @@ class ProjectsController
           unless map[record["project_id"]]["function_#{record["function_id"]}"]
             map[record["project_id"]]["function_#{record["function_id"]}"] = []
           end
-          map[record["project_id"]]["function_#{record["function_id"]}"] << orgas_fullnames[record["id"]]
           map[record["project_id"]]["function_#{record["function_id"]}"] << orgas_fullnames[record["id"]]
         end
       end
