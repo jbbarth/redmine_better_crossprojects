@@ -48,8 +48,8 @@
                when :members
                  column_content = members_map[project.id]
                when /role_(\d+)$/
-                 if organizations_map[project.id.to_s] && organizations_map[project.id.to_s][$1]
-                   column_content = organizations_map[project.id.to_s][$1].uniq.join(', ').html_safe
+                 if organizations_map[project.id] && organizations_map[project.id][$1.to_i]
+                   column_content = organizations_map[project.id][$1.to_i].uniq.join(', ').html_safe
                  end
                when /function_(\d+)$/
                  if organizations_map[project.id] && organizations_map[project.id][column.name.to_s]
