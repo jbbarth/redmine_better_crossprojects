@@ -55,14 +55,14 @@ module Redmine
                   when :users
                     value = project.send(column.name).size
                   when /role_(\d+)$/
-                    if organizations_map[project.id.to_s] && organizations_map[project.id.to_s][$1]
-                      value = organizations_map[project.id.to_s][$1].join(', ')
+                    if organizations_map[project.id] && organizations_map[project.id][$1.to_i]
+                      value = organizations_map[project.id][$1.to_i].uniq.join(', ')
                     else
                       value = ""
                     end
                   when /function_(\d+)$/
-                    if organizations_map[project.id.to_s] && organizations_map[project.id.to_s][column.name.to_s]
-                      value = organizations_map[project.id.to_s][column.name.to_s].uniq.join(', ').html_safe
+                    if organizations_map[project.id] && organizations_map[project.id][column.name.to_s]
+                      value = organizations_map[project.id][column.name.to_s].uniq.join(', ').html_safe
                     end
                   else
                     value = project.send(column.name)
