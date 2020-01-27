@@ -153,7 +153,7 @@ class ProjectQuery < Query
     membership_table = Member.table_name
 
     "#{Project.table_name}.id #{ operator == '=' ? 'IN' : 'NOT IN' } (SELECT project_id FROM #{membership_table}
-                                                                        INNER JOIN users ON users.id = #{membership_table}.user_id AND users.type IN ('User', 'AnonymousUser')
+                                                                        INNER JOIN users ON users.id = #{membership_table}.user_id AND users.type IN ('User', 'AnonymousUser') AND users.status != #{Principal::STATUS_LOCKED}
                                                                         WHERE organization_id IN
                                                                         (WITH RECURSIVE rec_tree(parent_id, id, name, direction, depth) AS (
                                                                         SELECT t.parent_id, t.id, t.name, t.direction, 1
