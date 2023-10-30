@@ -1,5 +1,11 @@
 # Redmine plugin for better cross-projects views
 
+This plugin is no longer under active maintenance. 
+If you are using Redmine 4.1 or a newer version, you can consider using this fork :
+https://github.com/nanego/redmine_projects_queries_extension
+
+## Description
+
 Everything is explained here: http://www.redmine.org/issues/5920
 
 ## Screenshot
